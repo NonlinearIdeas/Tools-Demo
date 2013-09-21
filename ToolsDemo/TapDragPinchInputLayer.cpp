@@ -44,6 +44,7 @@ void TapDragPinchInputLayer::StoreTouchData(CCTouch* touch, TOUCH_DATA_T* touchD
    CCPoint posRaw = touch->getLocationInView();
    touchData->pos = CCDirector::sharedDirector()->convertToGL(posRaw);
    touchData->ID = touch->getID();
+   touchData->timestamp = _stopWatch.GetSeconds();
 }
 
 
@@ -127,13 +128,14 @@ bool TapDragPinchInputLayer::ccTouchBegan(CCTouch *touch, CCEvent *pEvent)
          // you must be trying a pinch.
          StoreTouchData(touch, &_points[1]);
          _state = DPT_PINCH;
-         _target->TapDragPinchInputPinchBegin(_points[0].pos, _points[1].pos);
-         _target->SetPinchPoint0(_points[0].pos);
-         _target->SetPinchPoint1(_points[1].pos);
+         _target->SetPinchPoint0(_points[0]);
+         _target->SetPinchPoint1(_points[1]);
+         _target->TapDragPinchInputPinchBegin(_points[0], _points[1]);
          break;
       case DPT_IDLE:
-         StoreTouchData(touch, &_points[0]);
+         // Reset the stopwtach for a first point.
          _stopWatch.Start();
+         StoreTouchData(touch, &_points[0]);
          _state = DPT_FINGER_DOWN;
          break;
       case DPT_PINCH:
@@ -154,7 +156,7 @@ void TapDragPinchInputLayer::ccTouchMoved(CCTouch *touch, CCEvent *pEvent)
          if(_points[1].ID == touch->getID())
          {
             StoreTouchData(touch, &_points[1]);
-            _target->TapDragPinchInputDragContinue(_points[0].pos, _points[1].pos);
+            _target->TapDragPinchInputDragContinue(_points[0], _points[1]);
          }
          break;
       case DPT_FINGER_DOWN:
@@ -164,7 +166,7 @@ void TapDragPinchInputLayer::ccTouchMoved(CCTouch *touch, CCEvent *pEvent)
             if(distSq >= DRAG_RADIUS_SQ)
             {  // Starting a drag.
                StoreTouchData(touch, &_points[1]);
-               _target->TapDragPinchInputDragBegin(_points[0].pos, _points[1].pos);
+               _target->TapDragPinchInputDragBegin(_points[0], _points[1]);
                _state = DPT_DRAG;
             }
          }
@@ -186,7 +188,7 @@ void TapDragPinchInputLayer::ccTouchMoved(CCTouch *touch, CCEvent *pEvent)
          {  // Point 1 moved.
             StoreTouchData(touch, &_points[1]);
          }
-         _target->TapDragPinchInputPinchEnd(_points[0].pos, _points[1].pos);
+         _target->TapDragPinchInputPinchEnd(_points[0], _points[1]);
          break;
       case DPT_TAP:
          CCLOG("SHOULD NOT BE IN THIS STATE");
@@ -203,7 +205,7 @@ void TapDragPinchInputLayer::ccTouchEnded(CCTouch *touch, CCEvent *pEvent)
          if(_points[1].ID == touch->getID())
          {
             StoreTouchData(touch, &_points[1]);
-            _target->TapDragPinchInputDragEnd(_points[0].pos, _points[1].pos);
+            _target->TapDragPinchInputDragEnd(_points[0], _points[1]);
             _state = DPT_IDLE;
          }
          break;
@@ -212,11 +214,11 @@ void TapDragPinchInputLayer::ccTouchEnded(CCTouch *touch, CCEvent *pEvent)
          StoreTouchData(touch, &_points[0]);
          if(_stopWatch.GetSeconds() > 0.5)
          {
-            _target->TapDragPinchInputLongTap(_points[0].pos);
+            _target->TapDragPinchInputLongTap(_points[0]);
          }
          else
          {
-            _target->TapDragPinchInputTap(_points[0].pos);
+            _target->TapDragPinchInputTap(_points[0]);
          }
          _state = DPT_IDLE;
          break;
@@ -231,7 +233,7 @@ void TapDragPinchInputLayer::ccTouchEnded(CCTouch *touch, CCEvent *pEvent)
          {  // Point 1 moved.
             StoreTouchData(touch, &_points[1]);
          }
-         _target->TapDragPinchInputPinchEnd(_points[0].pos, _points[1].pos);
+         _target->TapDragPinchInputPinchEnd(_points[0], _points[1]);
          _state = DPT_IDLE;
          break;
       case DPT_TAP:

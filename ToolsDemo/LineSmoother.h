@@ -29,7 +29,6 @@
 
 #include "CommonProject.h"
 #include "CommonSTL.h"
-#include "Stopwatch.h"
 
 class LineSmoother
 {
@@ -84,7 +83,6 @@ private:
    // The smoothed points created from the last point added
    // to the data set.  
    vector<SMOOTHED_POINT> _smoothPoints;
-   StopWatch _stopwatch;
 protected:
    // Called each time a new point original is added.
    // This method is overriden in derived classes to add
@@ -104,9 +102,9 @@ public:
    // Add points to the line using the following calls.  It is expected that
    // the caller will call them in the "right" order (i.e. first point, some other points, last point).
    // If not, this class will throw an exception.
-   void LineBegin(const CCPoint& point0);
-   void LineContinue(const CCPoint& point);
-   void LineEnd(const CCPoint& point);
+   void LineBegin(const CCPoint& point0, double timestamp);
+   void LineContinue(const CCPoint& point, double timestamp);
+   void LineEnd(const CCPoint& point, double timestamp);
    
    LineSmoother();
    virtual ~LineSmoother();

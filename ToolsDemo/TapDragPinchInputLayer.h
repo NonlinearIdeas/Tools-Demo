@@ -43,15 +43,23 @@ class TapDragPinchInputLayer;
 
 class TapDragPinchInputLayerTarget
 {
+public:
+   typedef struct
+   {
+      CCPoint pos;
+      int32 ID;
+      double timestamp;
+   } TOUCH_DATA_T;
+
 private:
    /* These are used so that derived classes don't have to store the 
     * points from when a pinch began.
     */
-   CCPoint _pinchPoint0;
-   CCPoint _pinchPoint1;
+   TOUCH_DATA_T _pinchPoint0;
+   TOUCH_DATA_T _pinchPoint1;
 
-   inline void SetPinchPoint0(const CCPoint& point0) { _pinchPoint0 = point0; }
-   inline void SetPinchPoint1(const CCPoint& point1) { _pinchPoint1 = point1; }
+   inline void SetPinchPoint0(const TOUCH_DATA_T& point0) { _pinchPoint0 = point0; }
+   inline void SetPinchPoint1(const TOUCH_DATA_T& point1) { _pinchPoint1 = point1; }
    
    friend class TapDragPinchInputLayer;
 
@@ -61,17 +69,17 @@ protected:
     * pinch and this may or may not be signficant to the consumer
     * of the points.
     */
-   const inline CCPoint& GetPinchPoint0() { return _pinchPoint0; }
-   const inline CCPoint& GetPinchPoint1() { return _pinchPoint1; }
+   inline const TOUCH_DATA_T& GetPinchPoint0() { return _pinchPoint0; }
+   inline const TOUCH_DATA_T& GetPinchPoint1() { return _pinchPoint1; }
 public:
-   virtual void TapDragPinchInputTap(const CCPoint& point) = 0;
-   virtual void TapDragPinchInputLongTap(const CCPoint& point) = 0;
-   virtual void TapDragPinchInputPinchBegin(const CCPoint& point0, const CCPoint& point1) = 0;
-   virtual void TapDragPinchInputPinchContinue(const CCPoint& point0, const CCPoint& point1) = 0;
-   virtual void TapDragPinchInputPinchEnd(const CCPoint& point0, const CCPoint& point1) = 0;
-   virtual void TapDragPinchInputDragBegin(const CCPoint& point0, const CCPoint& point1) = 0;
-   virtual void TapDragPinchInputDragContinue(const CCPoint& point0, const CCPoint& point1) = 0;
-   virtual void TapDragPinchInputDragEnd(const CCPoint& point0, const CCPoint& point1) = 0;
+   virtual void TapDragPinchInputTap(const TOUCH_DATA_T& point) = 0;
+   virtual void TapDragPinchInputLongTap(const TOUCH_DATA_T& point) = 0;
+   virtual void TapDragPinchInputPinchBegin(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1) = 0;
+   virtual void TapDragPinchInputPinchContinue(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1) = 0;
+   virtual void TapDragPinchInputPinchEnd(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1) = 0;
+   virtual void TapDragPinchInputDragBegin(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1) = 0;
+   virtual void TapDragPinchInputDragContinue(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1) = 0;
+   virtual void TapDragPinchInputDragEnd(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1) = 0;
 };
 
 /*
@@ -92,7 +100,7 @@ class TapDragPinchInputLayer : public CCLayer, public CCTargetedTouchDelegate
 {
    
 private:
-   
+   typedef TapDragPinchInputLayerTarget::TOUCH_DATA_T TOUCH_DATA_T;
    //  The states it can be in.
    typedef enum
    {
@@ -103,11 +111,6 @@ private:
       DPT_TAP,
    } DPT_STATE_T;
    
-   typedef struct
-   {
-      CCPoint pos;
-      int32 ID;
-   } TOUCH_DATA_T;
    
    DPT_STATE_T _state;
    TOUCH_DATA_T _points[2];

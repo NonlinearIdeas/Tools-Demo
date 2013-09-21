@@ -75,14 +75,15 @@ public:
    virtual void Notify(Notifier::NOTIFIED_EVENT_TYPE_T eventType, const void* eventData);
    
    // Handler for Tap/Drag/Pinch Events
-   virtual void TapDragPinchInputTap(const CCPoint& point);
-   virtual void TapDragPinchInputLongTap(const CCPoint& point);
-   virtual void TapDragPinchInputPinchBegin(const CCPoint& point0, const CCPoint& point1);
-   virtual void TapDragPinchInputPinchContinue(const CCPoint& point0, const CCPoint& point1);
-   virtual void TapDragPinchInputPinchEnd(const CCPoint& point0, const CCPoint& point1);
-   virtual void TapDragPinchInputDragBegin(const CCPoint& point0, const CCPoint& point1);
-   virtual void TapDragPinchInputDragContinue(const CCPoint& point0, const CCPoint& point1);
-   virtual void TapDragPinchInputDragEnd(const CCPoint& point0, const CCPoint& point1);
+   typedef TapDragPinchInputLayerTarget::TOUCH_DATA_T TOUCH_DATA_T;
+   virtual void TapDragPinchInputTap(const TOUCH_DATA_T& point);
+   virtual void TapDragPinchInputLongTap(const TOUCH_DATA_T& point);
+   virtual void TapDragPinchInputPinchBegin(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1);
+   virtual void TapDragPinchInputPinchContinue(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1);
+   virtual void TapDragPinchInputPinchEnd(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1);
+   virtual void TapDragPinchInputDragBegin(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1);
+   virtual void TapDragPinchInputDragContinue(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1);
+   virtual void TapDragPinchInputDragEnd(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1);
 };
 
 

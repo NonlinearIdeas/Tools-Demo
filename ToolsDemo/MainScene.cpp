@@ -131,41 +131,41 @@ void MainScene::Notify(Notifier::NOTIFIED_EVENT_TYPE_T eventType, const void* ev
 }
 
 // Handler for Tap/Drag/Pinch Events
-void MainScene::TapDragPinchInputTap(const CCPoint& point)
+void MainScene::TapDragPinchInputTap(const TOUCH_DATA_T& point)
 {
    
 }
-void MainScene::TapDragPinchInputLongTap(const CCPoint& point)
+void MainScene::TapDragPinchInputLongTap(const TOUCH_DATA_T& point)
 {
    ResetDisplay();
 }
-void MainScene::TapDragPinchInputPinchBegin(const CCPoint& point0, const CCPoint& point1)
+void MainScene::TapDragPinchInputPinchBegin(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1)
 {
    
 }
-void MainScene::TapDragPinchInputPinchContinue(const CCPoint& point0, const CCPoint& point1)
+void MainScene::TapDragPinchInputPinchContinue(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1)
 {
    
 }
-void MainScene::TapDragPinchInputPinchEnd(const CCPoint& point0, const CCPoint& point1)
+void MainScene::TapDragPinchInputPinchEnd(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1)
 {
    
 }
-void MainScene::TapDragPinchInputDragBegin(const CCPoint& point0, const CCPoint& point1)
+void MainScene::TapDragPinchInputDragBegin(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1)
 {
-   _lineSmoother->LineBegin(point0);
-   _lineSmoother->LineContinue(point1);
+   _lineSmoother->LineBegin(point0.pos,point0.timestamp);
+   _lineSmoother->LineContinue(point1.pos,point1.timestamp);
    _lastSmoothedIndex = 1;
    DrawLines();
 }
-void MainScene::TapDragPinchInputDragContinue(const CCPoint& point0, const CCPoint& point1)
+void MainScene::TapDragPinchInputDragContinue(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1)
 {
-   _lineSmoother->LineContinue(point1);
+   _lineSmoother->LineContinue(point1.pos,point1.timestamp);
    DrawLines();
 }
-void MainScene::TapDragPinchInputDragEnd(const CCPoint& point0, const CCPoint& point1)
+void MainScene::TapDragPinchInputDragEnd(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1)
 {
-   _lineSmoother->LineEnd(point1);
+   _lineSmoother->LineEnd(point1.pos,point1.timestamp);
    DrawLines();
 }
 
@@ -217,6 +217,14 @@ void MainScene::DrawLines()
    DrawSmoothedLines();
 }
 
+static void DumpPointData(const LineSmoother::ORIGINAL_POINT& point)
+{
+   CCLOG("Drawing Data for original point: (%f,%f), position = %s, timestamp = %f",
+         point.point.x,point.point.y,
+         point.position == LineSmoother::LP_BEGIN?"BEGIN":point.position == LineSmoother::LP_CONTINUE?
+         "CONTINUE":"END",point.timestamp);
+}
+
 void MainScene::DrawOriginalLines()
 {
    LINE_PIXELS_DATA lp;
@@ -236,6 +244,16 @@ void MainScene::DrawOriginalLines()
       // 1. We are at the start of the line.
       // 2. We are at the end of a line.
       // 3. We are in the middle of a line.
+      
+      // Dumping data for timestamps for the original lines
+      // This is part of the process of finding the velocity of the
+      // user's pixels/second so we can do "interesting things" with
+      // it.
+      if(points.size() == 2)
+      {
+         DumpPointData(point);
+      }
+      DumpPointData(nextPoint);
       
       if(point.position == LineSmoother::LP_BEGIN)
       {  // Start of the line.

@@ -83,23 +83,18 @@ void LineSmoother::Reset()
    _smoothPoints.clear();
 }
 
-void LineSmoother::LineBegin(const CCPoint& point)
+void LineSmoother::LineBegin(const CCPoint& point, double timestamp)
 {
    // Clear out all data when a new line begins.
    Reset();
    
    ORIGINAL_POINT op;
-   op.point = point;
-   op.timestamp = 0.0;
-   op.tangent = ccp(0.0,0.0);
-   op.position = LP_BEGIN;
-   op.smoothedStartIndex = _smoothPoints.size();
+   op.Init(point, timestamp, LP_BEGIN, ccp(0.0f,0.0f), _smoothPoints.size());
    _orgPoints.push_back(op);
-   _stopwatch.Start();
    ProcessNewPoint();
 }
 
-void LineSmoother::LineContinue(const CCPoint& point)
+void LineSmoother::LineContinue(const CCPoint& point, double timestamp)
 {
    // Verify we are in a line.  This means the last
    // point loaded cannot be the end.
@@ -107,16 +102,12 @@ void LineSmoother::LineContinue(const CCPoint& point)
           _orgPoints[_orgPoints.size()-1].position != LP_END);
    
    ORIGINAL_POINT op;
-   op.point = point;
-   op.position = LP_CONTINUE;
-   op.timestamp = _stopwatch.GetSeconds();
-   op.tangent = ccp(0.0,0.0);
-   op.smoothedStartIndex = _smoothPoints.size();
+   op.Init(point, timestamp, LP_CONTINUE, ccp(0.0f,0.0f), _smoothPoints.size());
    _orgPoints.push_back(op);
    ProcessNewPoint();
 }
 
-void LineSmoother::LineEnd(const CCPoint& point)
+void LineSmoother::LineEnd(const CCPoint& point, double timestamp)
 {
    // Verify we are in a line.  We are NOT checking
    // if the last point was a continue, so we could have
@@ -125,11 +116,7 @@ void LineSmoother::LineEnd(const CCPoint& point)
    assert(_orgPoints.size() > 0 &&
           _orgPoints[_orgPoints.size()-1].position != LP_END);
    ORIGINAL_POINT op;
-   op.point = point;
-   op.position = LP_END;
-   op.timestamp = _stopwatch.GetSeconds();
-   op.tangent = ccp(0.0,0.0);
-   op.smoothedStartIndex = _smoothPoints.size();
+   op.Init(point, timestamp, LP_END, ccp(0.0f,0.0f), _smoothPoints.size());
    _orgPoints.push_back(op);
    ProcessNewPoint();
 }
