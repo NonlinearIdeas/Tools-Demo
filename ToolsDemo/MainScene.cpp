@@ -36,6 +36,7 @@
 MainScene::MainScene()
 {
    _lineSmoother = new LineSmootherCatmullRom();
+   //   _lineSmoother = new LineSmootherCardinal();
 }
 
 MainScene::~MainScene()
@@ -155,7 +156,6 @@ void MainScene::TapDragPinchInputDragBegin(const TOUCH_DATA_T& point0, const TOU
 {
    _lineSmoother->LineBegin(point0.pos,point0.timestamp);
    _lineSmoother->LineContinue(point1.pos,point1.timestamp);
-   _lastSmoothedIndex = 1;
    DrawLines();
 }
 void MainScene::TapDragPinchInputDragContinue(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1)
@@ -228,7 +228,7 @@ static void DumpPointData(const LineSmoother::ORIGINAL_POINT& point)
 void MainScene::DrawOriginalLines()
 {
    LINE_PIXELS_DATA lp;
-   ccColor4F lineColor = ccc4f(0.75, 0.1, 0.1, 0.25);
+   ccColor4F lineColor = ccc4f(0.8, 0.1, 0.1, 0.75);
    const vector<LineSmoother::ORIGINAL_POINT>& points = _lineSmoother->GetOriginalPoints();
    // Clear ALL lines out of the debug drawing.
    
@@ -298,7 +298,7 @@ void MainScene::DrawOriginalLines()
 void MainScene::DrawSmoothedLines()
 {
    LINE_PIXELS_DATA lp;
-   ccColor4F lineColor = ccc4f(0.15, 0.8, 0.1, 0.75);
+   ccColor4F lineColor = ccc4f(0.15, 0.8, 0.1, 0.95);
    const vector<LineSmoother::SMOOTHED_POINT>& points = _lineSmoother->GetSmoothedPoints();
    // Clear ALL lines out of the debug drawing.
    
@@ -306,7 +306,7 @@ void MainScene::DrawSmoothedLines()
    lp.color = lineColor;
    if(points.size() > 1)
    {
-      for(int idx = _lastSmoothedIndex; idx < points.size(); idx++)
+      for(int idx = _lineSmoother->GetLastSmoothPointIndex(); idx < points.size(); idx++)
       {
          const LineSmoother::SMOOTHED_POINT& point = points[idx-1];
          const LineSmoother::SMOOTHED_POINT& nextPoint = points[idx];
@@ -318,7 +318,7 @@ void MainScene::DrawSmoothedLines()
          
          if(point.position == LineSmoother::LP_BEGIN)
          {  // Start of the line.
-            lp.markerRadius = 14.0;
+            lp.markerRadius = 0.0;
             lp.start = point.point;
             lp.end = point.point;
             Notifier::Instance().Notify(Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS,&lp);
@@ -331,7 +331,7 @@ void MainScene::DrawSmoothedLines()
          {  // End of the line.
             lp.start = point.point;
             lp.end = point.point;
-            lp.markerRadius = 25.0;
+            lp.markerRadius = 0.0;
             Notifier::Instance().Notify(Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS,&lp);
             /*
             CCLOG("Drawing END (%d of %u): (%f,%f)",
@@ -354,8 +354,9 @@ void MainScene::DrawSmoothedLines()
              */
          }
       }
-      // Update the _lastSmoothedIndex value so that next time we start in the right place.
-      _lastSmoothedIndex = points.size();
+      // Mark the last smooth point set retrieved so that we can pick up here on the next
+      // point set.
+      _lineSmoother->MarkLastSmoothPointIndex();
       // We still have to draw the "last" last point, Since we get an update every
       // time a new point is added, we have to check if the last point is an end point
       // or not.  If it is, give it a special marker.  This will be the "last point of
@@ -365,7 +366,7 @@ void MainScene::DrawSmoothedLines()
       {
          lp.start = lastPoint.point;
          lp.end = lastPoint.point;
-         lp.markerRadius = 30.0;
+         lp.markerRadius = 0.0;
          Notifier::Instance().Notify(Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS,&lp);
          //      CCLOG("Drawing END: (%f,%f)",lastPoint.point.x,lastPoint.point.y);
       }

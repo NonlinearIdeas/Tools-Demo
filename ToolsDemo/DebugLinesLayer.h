@@ -38,13 +38,20 @@ private:
    
    vector<LINE_PIXELS_DATA_T> _lineData;
    bool _enabled;
+   CCRenderTexture* _renderTexture;
    
    bool init()
    {
       if(!CCLayer::init())
          return false;
+      CCSize scrSize = CCDirector::sharedDirector()->getWinSize();
+      _renderTexture = CCRenderTexture::create(scrSize.width, scrSize.height, kCCTexture2DPixelFormat_RGBA8888);
+      _renderTexture->setPosition(ccp(scrSize.width/2,scrSize.height/2));
+      addChild(_renderTexture);
       
       Reset();
+      
+      
       Notifier::Instance().Attach(this, Notifier::NE_RESET_DRAW_CYCLE);
       Notifier::Instance().Attach(this, Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS);
       
@@ -52,6 +59,11 @@ private:
    }
    
    DebugLinesLayer()
+   {
+      
+   }
+   
+   ~DebugLinesLayer()
    {
    }
    
@@ -61,13 +73,10 @@ public:
    void Reset()
    {
       _lineData.clear();
+      _renderTexture->clear(0.0, 0, 0, 0.0);
       _enabled = true;
    }
-   
-   void ResetLines()
-   {
-      _lineData.clear();
-   }
+
    
    void SetEnabled(bool enabled) { _enabled = enabled; }
    bool GetEnabled() { return _enabled; }
@@ -83,6 +92,7 @@ public:
       CCLayer::draw();
       if(_enabled)
       {
+         _renderTexture->begin();
          for(int idx = 0; idx < _lineData.size(); idx++)
          {
             LINE_PIXELS_DATA_T& ld = _lineData[idx];
@@ -93,6 +103,8 @@ public:
             }
             ccDrawLine(ccp(ld.start.x,ld.start.y), ccp(ld.end.x,ld.end.y));
          }
+         _lineData.clear();
+         _renderTexture->end();
       }
    }
    
@@ -101,7 +113,7 @@ public:
       switch(eventType)
       {
          case Notifier::NE_RESET_DRAW_CYCLE:
-            ResetLines();
+            Reset();
             break;
          case Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS:
             AddLine(*((LINE_PIXELS_DATA_T*)eventData));

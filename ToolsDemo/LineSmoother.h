@@ -83,6 +83,11 @@ private:
    // The smoothed points created from the last point added
    // to the data set.  
    vector<SMOOTHED_POINT> _smoothPoints;
+   // Keeps the index of the last smoothed index point
+   // retrieved for a client so they can pick up where
+   // they left off when  drawing a single group at a time.
+   uint32 _lastSmoothPointIndex;
+   
 protected:
    // Called each time a new point original is added.
    // This method is overriden in derived classes to add
@@ -118,6 +123,8 @@ public:
    // data to line up the positions of the points in this array.  When a new line is started
    // both arrays are cleared.
    const vector<SMOOTHED_POINT>& GetSmoothedPoints() { return _smoothPoints; }
+   void MarkLastSmoothPointIndex() { _lastSmoothPointIndex = _smoothPoints.size(); }
+   uint32 GetLastSmoothPointIndex() { return _lastSmoothPointIndex; }
 };
 
 #endif /* defined(__ToolsDemo__LineSmoother__) */

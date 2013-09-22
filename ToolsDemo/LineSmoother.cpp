@@ -81,6 +81,7 @@ void LineSmoother::Reset()
 {
    _orgPoints.clear();
    _smoothPoints.clear();
+   _lastSmoothPointIndex = 1;
 }
 
 void LineSmoother::LineBegin(const CCPoint& point, double timestamp)

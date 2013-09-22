@@ -45,7 +45,6 @@ private:
    
    void ToggleShowingOriginal();
    
-   uint32 _lastSmoothedIndex;
    LineSmoother* _lineSmoother;
    bool _showOriginal;
 protected:
