@@ -75,6 +75,7 @@ public:
       CCPoint tangent;
       uint32 smoothedStartIndex;
       float pointsPerSecond;
+      float pointsPerSecondRaw;
       float widthPixels;
       
       void Init(const CCPoint& point_,

@@ -105,9 +105,13 @@ void LineSmoother::CalculateVelocities(uint32 newPointIndex)
    if(newPointIndex == 0)
    {  // Must be the first point.
       _orgPoints[newPointIndex].pointsPerSecond = 0.0f;
+      _orgPoints[newPointIndex].pointsPerSecondRaw = 0.0f;
    }
    else
    {
+      const float PPS_MIN = 100.0f;
+      const float PPS_MAX = 3000.0f;
+      
       ORIGINAL_POINT& p0 = _orgPoints[newPointIndex-1];
       ORIGINAL_POINT& p1 = _orgPoints[newPointIndex];
       
@@ -115,7 +119,17 @@ void LineSmoother::CalculateVelocities(uint32 newPointIndex)
       float dt = p1.timestamp-p0.timestamp;
       assert(dt > 0.0f);
       float ppsRaw = dist/dt;
-      p1.pointsPerSecond = ppsRaw;
+      p1.pointsPerSecondRaw = ppsRaw;
+      // Do some median filtering on the point velocities to reject spikes
+      if(newPointIndex == 1)
+      {  // Must be the second point.
+         ppsRaw = Median(ppsRaw, ppsRaw, p0.pointsPerSecondRaw);
+      }
+      else
+      {
+         ppsRaw = Median(ppsRaw, p0.pointsPerSecondRaw, _orgPoints[newPointIndex-2].pointsPerSecondRaw);
+      }
+      p1.pointsPerSecond = clampf(ppsRaw,PPS_MIN,PPS_MAX);
    }
 }
 
@@ -123,7 +137,7 @@ void LineSmoother::CalculateVelocities(uint32 newPointIndex)
 void LineSmoother::CalculateWidths(uint32 newPointIndex)
 {
    const float WIDTH_MIN = 1.0f;
-   const float WIDTH_MAX = 30.0f;
+   const float WIDTH_MAX = 10.0f;
    
    if(newPointIndex == 0)
    {
@@ -131,16 +145,22 @@ void LineSmoother::CalculateWidths(uint32 newPointIndex)
    }
    else
    {
-      const float c0 = 0.80f;
-      const float c1 = 1.0 - c0;
+      const float WIDTH_EPSILON = 0.25;
+      const float GROWTH_FACTOR = 0.75;
+      
       ORIGINAL_POINT& p0 = _orgPoints[newPointIndex-1];
       ORIGINAL_POINT& p1 = _orgPoints[newPointIndex];
       
       // Width for the current point.
-      float width = clampf(p1.pointsPerSecond/200.0f, WIDTH_MIN, WIDTH_MAX);
-      // Get a little from this point, but a lot from the last one.
-      width = c0*p0.widthPixels + c1*width;
-      p1.widthPixels = width;
+      p1.widthPixels = p0.widthPixels;
+      float widthEstimate = clampf(p1.pointsPerSecond/200.0f, WIDTH_MIN, WIDTH_MAX);
+      float deltaWidthEstmate = widthEstimate-p1.widthPixels;
+      //      CCLOG("width:%f, widthEstimate:%f, delta:%f",p1.widthPixels,widthEstimate,deltaWidthEstmate);
+      if(fabs(deltaWidthEstmate) > WIDTH_EPSILON)
+      {  // The new estimate is far enough away to warrant a change.
+         p1.widthPixels += deltaWidthEstmate*GROWTH_FACTOR;
+      }
+      p1.widthPixels = clampf(p1.widthPixels, WIDTH_MIN, WIDTH_MAX);
    }
 }
 
