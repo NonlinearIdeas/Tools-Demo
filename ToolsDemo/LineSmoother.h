@@ -46,12 +46,24 @@ public:
    {
       CCPoint point;
       LINE_POSITION_T position;
+      float32 widthPixels;
       
       void Init(const CCPoint& point_,
                 LINE_POSITION_T position_)
       {
          point = point_;
          position = position;
+         widthPixels = 1.0;
+      }
+      
+      void Dump(int pointIdx = -1) const
+      {
+         CCLOG("SMOOTH POINT(%d): POINT:(%f,%f), POS:(%s), WIDTH:(%f)",
+               pointIdx,
+               point.x,point.y,
+               position == LP_BEGIN?"BEGIN":position == LP_CONTINUE?"CONTINUE":"END",
+               widthPixels
+               );
       }
    };
    
@@ -62,46 +74,95 @@ public:
       LINE_POSITION_T position;
       CCPoint tangent;
       uint32 smoothedStartIndex;
+      float pointsPerSecond;
+      float widthPixels;
       
       void Init(const CCPoint& point_,
            double timestamp_,
            const LINE_POSITION_T& position_,
-           const CCPoint& tangent_,
-                uint32 smoothedStartIndex_)
+           const CCPoint& tangent_)
       {
          point = point_;
          position = position_;
          tangent = tangent_;
          timestamp = timestamp_;
-         smoothedStartIndex = smoothedStartIndex_;
+         smoothedStartIndex = 0;
+         pointsPerSecond = 1.0f;
+         widthPixels = 1.0f;
+      }
+      void Dump(int pointIdx=-1) const
+      {
+         CCLOG("ORIGINAL POINT(%d): POINT:(%f,%f), POS:(%s), TAN:(%f,%f), TIME:(%f), SSI:(%u), WIDTH:(%f), VEL:(%f)",
+               pointIdx,
+               point.x,point.y,
+               position == LP_BEGIN?"BEGIN":position == LP_CONTINUE?"CONTINUE":"END",
+               tangent.x,tangent.y,
+               timestamp,
+               smoothedStartIndex,
+               widthPixels,
+               pointsPerSecond
+               );
       }
    };
    
 private:
-   // ALL the points accumulated.
+   // ALL the point for this line accumulated.
    vector<ORIGINAL_POINT> _orgPoints;
-   // The smoothed points created from the last point added
-   // to the data set.  
+   
+   // The smoothed points created for this line.
    vector<SMOOTHED_POINT> _smoothPoints;
+   
    // Keeps the index of the last smoothed index point
    // retrieved for a client so they can pick up where
    // they left off when  drawing a single group at a time.
    uint32 _lastSmoothPointIndex;
    
-protected:
    // Called each time a new point original is added.
    // This method is overriden in derived classes to add
    // new types of spline options.
-   virtual void ProcessNewPoint();
+   void ProcessNewPoint();
+   
+protected:
+
+   // The following functions are called internally by the base class as
+   // an algorithm to create the smoothed lines.  The functions are called
+   // in the following order:
+   //
+   // CalculateVelocities(...)
+   // CalculateWidths(...)
+   // CalculateSmoothPoints(...)
+   //
+   // The idea is that as new original points come in, some calculation
+   // of the velocities will be done and these values deposited in the
+   // information for the new original point.  The the widths will be
+   // calculated based on the velocities and position relative to the
+   // start of the set.  Finally the smooth points themselves will be
+   // calculate.
+   //
+   //
+   
+   // Given a new original point at newPointIndex, calculate a new
+   // set of smoothed points and add them to the smoothPoints list.
+   virtual void CalculateSmoothPoints(uint32 newPointIndex);
+   // Estimate the velocity of the new point relative to previous points
+   // in pixels/second.
+   virtual void CalculateVelocities(uint32 newPointIndex);
+   // Calculate velocities for the original new point at newPointIndex.
+   virtual void CalculateWidths(uint32 newPointIndex);
+   
    // Methods used by derived classes to implement ProcessNewPoint
-   vector<ORIGINAL_POINT>& GetOriginalPointsInternal() { return _orgPoints; }
-   vector<SMOOTHED_POINT>& GetSmoothedPointsInternal() { return _smoothPoints; }
+   vector<ORIGINAL_POINT>& GetOriginalPoints() { return _orgPoints; }
+   vector<SMOOTHED_POINT>& GetSmoothedPoints() { return _smoothPoints; }
    void AddSmoothedPoint(const SMOOTHED_POINT& sm) { _smoothPoints.push_back(sm); }
    CCPoint HermiteSpline(float t, CCPoint p0, CCPoint p1, CCPoint m0, CCPoint m1);
    
+   // Call this from your smoothing algorithm to mark the size of the smoothPoints
+   // list into the original point set.  You don't have to do this if you don't
+   // use the smoothedStartIndex later.
+   void MarkSmoothingStart(uint32 pointIndex);
+   
 public:
-   // Resets the data points, but does not change the
-   // algorithm used.
+   // Resets the data points.
    void Reset();
    
    // Add points to the line using the following calls.  It is expected that
@@ -118,11 +179,11 @@ public:
 public:
    // Use this to retrieve the original set of points.  This can be useful for debugging
    // or if you wish to redraw the entire set (i.e. copy, reset, and resubmit them).
-   const vector<ORIGINAL_POINT>& GetOriginalPoints() { return _orgPoints; }
+   const vector<ORIGINAL_POINT>& GetOriginalPointsConst() const { return _orgPoints; }
    // New smoothed points are added to this array.  You can use the points in the original
    // data to line up the positions of the points in this array.  When a new line is started
    // both arrays are cleared.
-   const vector<SMOOTHED_POINT>& GetSmoothedPoints() { return _smoothPoints; }
+   const vector<SMOOTHED_POINT>& GetSmoothedPointsConst() const { return _smoothPoints; }
    void MarkLastSmoothPointIndex() { _lastSmoothPointIndex = _smoothPoints.size(); }
    uint32 GetLastSmoothPointIndex() { return _lastSmoothPointIndex; }
 };

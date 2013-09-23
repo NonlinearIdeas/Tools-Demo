@@ -25,6 +25,8 @@
  */
 
 #include "LineSmootherCardinal.h"
+#include "MathUtilities.h"
+
 
 LineSmootherCardinal::LineSmootherCardinal() :
    _tension(0.5)
@@ -32,19 +34,18 @@ LineSmootherCardinal::LineSmootherCardinal() :
    
 }
 
-void LineSmootherCardinal::ProcessNewPoint()
+void LineSmootherCardinal::CalculateSmoothPoints(uint32 newPointIndex)
 {
-   vector<ORIGINAL_POINT>& orgPoints = GetOriginalPointsInternal();
-   vector<SMOOTHED_POINT>& smoothPoints = GetSmoothedPointsInternal();
+   vector<ORIGINAL_POINT>& orgPoints = GetOriginalPoints();
+   vector<SMOOTHED_POINT>& smoothPoints = GetSmoothedPoints();
    
    if(orgPoints.size() < 3)
    {  // Nothing to do with a single point.
       return;
    }
-   int idx = orgPoints.size()-1;
-   ORIGINAL_POINT& p2 = orgPoints[idx];
-   ORIGINAL_POINT& p1 = orgPoints[idx-1];
-   ORIGINAL_POINT& p0 = orgPoints[idx-2];
+   ORIGINAL_POINT& p2 = orgPoints[newPointIndex];
+   ORIGINAL_POINT& p1 = orgPoints[newPointIndex-1];
+   ORIGINAL_POINT& p0 = orgPoints[newPointIndex-2];
    
    if(p0.position == LP_BEGIN)
    {  // Estimate the tangent for the start point of this new
@@ -61,6 +62,7 @@ void LineSmootherCardinal::ProcessNewPoint()
    // end or a continue point.  We use the same rule for generating
    // the tangent in both cases.
    p1.tangent = ccpMult(ccpSub(p2.point, p0.point), _tension);
+
    
    // Now that we have tangents, estimate the spline between
    // the last point and the current point.
@@ -69,9 +71,10 @@ void LineSmootherCardinal::ProcessNewPoint()
    const float pixelsPerTick = 2.0;
    float distPixels = ccpDistance(p1.point, p0.point);
    int ticks = MAX(16, distPixels/pixelsPerTick);
+   
    double dt = 1.0/(ticks);
    SMOOTHED_POINT smPt;
-   for(int idx = 0; idx <= ticks; idx++)
+   for(int idx = 0; idx < ticks; idx++)
    {
       float time = idx*dt;
       if(p0.position == LP_BEGIN && idx == 0)
@@ -89,14 +92,18 @@ void LineSmootherCardinal::ProcessNewPoint()
          smPt.position = LP_CONTINUE;
          smPt.point = HermiteSpline(time, p0.point, p1.point, p0.tangent, p1.tangent);
       }
+      smPt.widthPixels = MathUtilities::LinearTween(time, p0.widthPixels, p1.widthPixels);
       smoothPoints.push_back(smPt);
       //      CCLOG("Pushed point (%f,%f) onto smoothed points (size = %d) (position = %s)",
       //      smPt.point.x,smPt.point.y,smoothPoints.size(),smPt.position == LP_BEGIN?"BEGIN":smPt.position==LP_END?"END":"CONTINUE");
    }
+   // Mark the index for the smoothed data.
+   MarkSmoothingStart(newPointIndex-1);
    if(p2.position == LP_END)
    {
       distPixels = ccpDistance(p2.point, p1.point);
       ticks = MAX(4, distPixels/pixelsPerTick);
+
       dt = 1.0/(ticks);
       for(int idx = 0; idx <= ticks; idx++)
       {
@@ -111,6 +118,7 @@ void LineSmootherCardinal::ProcessNewPoint()
             smPt.position = LP_CONTINUE;
             smPt.point = HermiteSpline(time, p1.point, p2.point, p1.tangent, p2.tangent);
          }
+         smPt.widthPixels = MathUtilities::LinearTween(time, p1.widthPixels, p2.widthPixels);
          smoothPoints.push_back(smPt);
          //      CCLOG("Pushed point (%f,%f) onto smoothed points (size = %d) (position = %s)",
          //      smPt.point.x,smPt.point.y,smoothPoints.size(),smPt.position == LP_BEGIN?"BEGIN":smPt.position==LP_END?"END":"CONTINUE");

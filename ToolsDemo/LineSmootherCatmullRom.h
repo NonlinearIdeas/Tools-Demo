@@ -32,7 +32,9 @@
 class LineSmootherCatmullRom : public LineSmoother
 {
 protected:
-   virtual void ProcessNewPoint();
+   // Given a new original point at newPointIndex, calculate a new
+   // set of smoothed points and add them to the smoothPoints list.
+   virtual void CalculateSmoothPoints(uint32 newPointIndex);
 };
 
 #endif /* defined(__ToolsDemo__LineSmootherCatmullRom__) */

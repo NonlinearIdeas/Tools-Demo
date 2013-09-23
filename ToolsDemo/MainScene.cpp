@@ -31,12 +31,10 @@
 #include "DebugMenuLayer.h"
 #include "TapDragPinchInputLayer.h"
 
-
-
 MainScene::MainScene()
 {
    _lineSmoother = new LineSmootherCatmullRom();
-   //   _lineSmoother = new LineSmootherCardinal();
+   //_lineSmoother = new LineSmootherCardinal();
 }
 
 MainScene::~MainScene()
@@ -217,19 +215,12 @@ void MainScene::DrawLines()
    DrawSmoothedLines();
 }
 
-static void DumpPointData(const LineSmoother::ORIGINAL_POINT& point)
-{
-   CCLOG("Drawing Data for original point: (%f,%f), position = %s, timestamp = %f",
-         point.point.x,point.point.y,
-         point.position == LineSmoother::LP_BEGIN?"BEGIN":point.position == LineSmoother::LP_CONTINUE?
-         "CONTINUE":"END",point.timestamp);
-}
 
 void MainScene::DrawOriginalLines()
 {
    LINE_PIXELS_DATA lp;
    ccColor4F lineColor = ccc4f(0.8, 0.1, 0.1, 0.75);
-   const vector<LineSmoother::ORIGINAL_POINT>& points = _lineSmoother->GetOriginalPoints();
+   const vector<LineSmoother::ORIGINAL_POINT>& points = _lineSmoother->GetOriginalPointsConst();
    // Clear ALL lines out of the debug drawing.
    
    // Get the original points, draw them
@@ -244,17 +235,6 @@ void MainScene::DrawOriginalLines()
       // 1. We are at the start of the line.
       // 2. We are at the end of a line.
       // 3. We are in the middle of a line.
-      
-      // Dumping data for timestamps for the original lines
-      // This is part of the process of finding the velocity of the
-      // user's pixels/second so we can do "interesting things" with
-      // it.
-      if(points.size() == 2)
-      {
-         DumpPointData(point);
-      }
-      DumpPointData(nextPoint);
-      
       if(point.position == LineSmoother::LP_BEGIN)
       {  // Start of the line.
          lp.markerRadius = 8.0;
@@ -299,7 +279,7 @@ void MainScene::DrawSmoothedLines()
 {
    LINE_PIXELS_DATA lp;
    ccColor4F lineColor = ccc4f(0.15, 0.8, 0.1, 0.95);
-   const vector<LineSmoother::SMOOTHED_POINT>& points = _lineSmoother->GetSmoothedPoints();
+   const vector<LineSmoother::SMOOTHED_POINT>& points = _lineSmoother->GetSmoothedPointsConst();
    // Clear ALL lines out of the debug drawing.
    
    // Get the original points, draw them

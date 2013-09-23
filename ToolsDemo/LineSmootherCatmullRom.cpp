@@ -25,27 +25,26 @@
  */
 
 #include "LineSmootherCatmullRom.h"
+#include "MathUtilities.h"
 
-
-void LineSmootherCatmullRom::ProcessNewPoint()
+void LineSmootherCatmullRom::CalculateSmoothPoints(uint32 newPointIndex)
 {
    const float pixelsPerTick = 2.0;
    
-   vector<ORIGINAL_POINT>& orgPoints = GetOriginalPointsInternal();
-   vector<SMOOTHED_POINT>& smoothPoints = GetSmoothedPointsInternal();
+   vector<ORIGINAL_POINT>& orgPoints = GetOriginalPoints();
+   vector<SMOOTHED_POINT>& smoothPoints = GetSmoothedPoints();
    
    if(orgPoints.size() < 3)
    {
       return;
    }
    
-   int opSizeM1 = orgPoints.size()-1;
-   if(opSizeM1 == 2)
+   if(newPointIndex == 2)
    {  // Must mean we have only 3 points in there.
       // So the first point is the starting point.
-      ORIGINAL_POINT& p2 = orgPoints[opSizeM1];
-      ORIGINAL_POINT& p1 = orgPoints[opSizeM1-1];
-      ORIGINAL_POINT& p0 = orgPoints[opSizeM1-2];
+      ORIGINAL_POINT& p2 = orgPoints[newPointIndex];
+      ORIGINAL_POINT& p1 = orgPoints[newPointIndex-1];
+      ORIGINAL_POINT& p0 = orgPoints[newPointIndex-2];
       
       assert(p0.position == LP_BEGIN);
       p0.tangent = ccpSub(p1.point, p0.point);
@@ -57,10 +56,11 @@ void LineSmootherCatmullRom::ProcessNewPoint()
       double dt = 1.0/(ticks);
       SMOOTHED_POINT smPt;
       smPt.position = LP_CONTINUE;
-      for(int idx = 0; idx <= ticks; idx++)
+      for(int idx = 0; idx < ticks; idx++)
       {
          float time = idx*dt;
          smPt.point = HermiteSpline(time, p0.point, p1.point, p0.tangent, p1.tangent);
+         smPt.widthPixels = MathUtilities::LinearTween(time, p0.widthPixels, p1.widthPixels);
          smoothPoints.push_back(smPt);
       }
       // The first point is ALWAYS a beginning point.
@@ -70,21 +70,26 @@ void LineSmootherCatmullRom::ProcessNewPoint()
       {
          smoothPoints[smoothPoints.size()-1].position = LP_END;
       }
+      // We need to mark the position where the second point begins in the
+      // smoothed list.
+      MarkSmoothingStart(1);
    }
    else
    {  // Beyond three points.
       // We can process the data
-      ORIGINAL_POINT& p3 = orgPoints[opSizeM1];
-      ORIGINAL_POINT& p2 = orgPoints[opSizeM1-1];
-      ORIGINAL_POINT& p1 = orgPoints[opSizeM1-2];
-      ORIGINAL_POINT& p0 = orgPoints[opSizeM1-3];
+      ORIGINAL_POINT& p3 = orgPoints[newPointIndex];
+      ORIGINAL_POINT& p2 = orgPoints[newPointIndex-1];
+      ORIGINAL_POINT& p1 = orgPoints[newPointIndex-2];
+      ORIGINAL_POINT& p0 = orgPoints[newPointIndex-3];
+      
+      MarkSmoothingStart(newPointIndex-2);
       
       float distPixels = ccpDistance(p2.point, p1.point);
       int ticks = MAX(4, distPixels/pixelsPerTick);
       double dt = 1.0/(ticks);
       SMOOTHED_POINT smPt;
       smPt.position = LP_CONTINUE;
-      for(int idx = 0; idx <= ticks; idx++)
+      for(int idx = 0; idx < ticks; idx++)
       {
          float time = idx*dt;
          float tSq = time*time;
@@ -99,12 +104,16 @@ void LineSmootherCatmullRom::ProcessNewPoint()
          pt.x = 0.5*(b0.x+b1.x+b2.x+b3.x);
          pt.y = 0.5*(b0.y+b1.y+b2.y+b3.y);
          smPt.point = pt;
+         smPt.widthPixels = MathUtilities::LinearTween(time, p1.widthPixels, p2.widthPixels);
          smoothPoints.push_back(smPt);
        }
       if(p3.position == LP_END)
       {  // Finish out the last section with a cubic hermite spline.
          p3.tangent = ccpSub(p3.point, p2.point);
          p2.tangent = ccpMult(ccpSub(p3.point, p1.point), 0.5f);
+         
+         // Mark the position for the smooth points index.
+         MarkSmoothingStart(newPointIndex-1);
          
          // Fill in the curve between the first point and the second.
          float distPixels = ccpDistance(p3.point, p2.point);
@@ -116,6 +125,7 @@ void LineSmootherCatmullRom::ProcessNewPoint()
          {
             float time = idx*dt;
             smPt.point = HermiteSpline(time, p2.point, p3.point, p2.tangent, p3.tangent);
+            smPt.widthPixels = MathUtilities::LinearTween(time, p2.widthPixels, p3.widthPixels);
             smoothPoints.push_back(smPt);
          }
          // The last point is the END point.
