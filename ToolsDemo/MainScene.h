@@ -33,6 +33,7 @@
 #include "DebugLinesLayer.h"
 #include "TapDragPinchInputLayer.h"
 #include "Notifier.h"
+#include "SmoothLinesLayer.h"
 
 class LineSmoother;
 
@@ -43,10 +44,12 @@ private:
    // Private constructor.
    MainScene();
    
-   void ToggleShowingOriginal();
    
    LineSmoother* _lineSmoother;
+   SmoothLinesLayer* _smoothLinesLayer;
+   
    bool _showOriginal;
+   bool _showSmoothedLine;
 protected:
    // This is protected so that derived classes can call it
    // in their create methods.
@@ -55,10 +58,14 @@ protected:
 private:
    void CreateMenu();
    void HandleMenuChoice(uint32 choice);
-   void DrawOriginalLines();
+   void DrawDebugSmoothedLines();
+   void DrawDebugOriginalLines();
    void DrawSmoothedLines();
    void DrawLines();
    void ResetDisplay();
+   void ToggleShowingOriginal();
+   void ToggleShowSmoothed();
+
 public:
    
    static MainScene* create();

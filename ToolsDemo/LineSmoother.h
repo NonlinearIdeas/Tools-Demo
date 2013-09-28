@@ -185,7 +185,7 @@ public:
    // data to line up the positions of the points in this array.  When a new line is started
    // both arrays are cleared.
    const vector<SMOOTHED_POINT>& GetSmoothedPointsConst() const { return _smoothPoints; }
-   void MarkLastSmoothPointIndex() { _lastSmoothPointIndex = _smoothPoints.size(); }
+   void MarkLastSmoothPointIndex() { _lastSmoothPointIndex = _smoothPoints.size()-1; }
    uint32 GetLastSmoothPointIndex() { return _lastSmoothPointIndex; }
 };
 

@@ -29,6 +29,7 @@
 #include "LineSmootherCardinal.h"
 #include "DebugLinesLayer.h"
 #include "DebugMenuLayer.h"
+#include "SmoothLinesLayer.h"
 #include "TapDragPinchInputLayer.h"
 
 MainScene::MainScene()
@@ -53,6 +54,11 @@ bool MainScene::init()
    addChild(layer);
    
    
+   _smoothLinesLayer = SmoothLinesLayer::create();
+   assert(_smoothLinesLayer != NULL);
+   addChild(_smoothLinesLayer);
+   
+   
    // Adding the debug lines so that we can draw the original
    // and smoothed data.
    layer = DebugLinesLayer::create();
@@ -68,6 +74,7 @@ bool MainScene::init()
    addChild(layer);
    
    _showOriginal = false;
+   _showSmoothedLine = false;
    
    return true;
 }
@@ -172,6 +179,7 @@ void MainScene::CreateMenu()
    vector<string> labels;
    labels.push_back("Reset Lines");
    labels.push_back("Toggle Original");
+   labels.push_back("Toggle Smoothed");
    DebugMenuLayer* layer = DebugMenuLayer::create(labels);
    layer->GetMenu()->setColor(ccc3(0, 0, 0));
    assert(layer != NULL);
@@ -181,7 +189,14 @@ void MainScene::CreateMenu()
 void MainScene::ResetDisplay()
 {
    _lineSmoother->Reset();
+   _smoothLinesLayer->Reset();
    Notifier::Instance().Notify(Notifier::NE_RESET_DRAW_CYCLE);
+}
+
+void MainScene::ToggleShowSmoothed()
+{
+   _showSmoothedLine = !_showSmoothedLine;
+   ResetDisplay();
 }
 
 void MainScene::ToggleShowingOriginal()
@@ -200,6 +215,9 @@ void MainScene::HandleMenuChoice(uint32 choice)
       case 1:
          ToggleShowingOriginal();
          break;
+      case 2:
+         ToggleShowSmoothed();
+         break;
       default:
          assert(false);
          break;
@@ -210,13 +228,17 @@ void MainScene::DrawLines()
 {
    if(_showOriginal)
    {
-      DrawOriginalLines();
+      DrawDebugOriginalLines();
+   }
+   if(_showSmoothedLine)
+   {
+      DrawDebugSmoothedLines();
    }
    DrawSmoothedLines();
 }
 
 
-void MainScene::DrawOriginalLines()
+void MainScene::DrawDebugOriginalLines()
 {
    LINE_PIXELS_DATA lp;
    ccColor4F lineColor = ccc4f(0.8, 0.1, 0.1, 0.75);
@@ -277,10 +299,24 @@ void MainScene::DrawOriginalLines()
 
 void MainScene::DrawSmoothedLines()
 {
+   const vector<LineSmoother::SMOOTHED_POINT>& points = _lineSmoother->GetSmoothedPointsConst();
+   if(points.size() > _lineSmoother->GetLastSmoothPointIndex())
+   {
+      // Set the line color.
+      _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 0.0f, 0.0f, 1.0f));
+      // Add the points to the smoothed line layer.
+      _smoothLinesLayer->AddSmoothedPoints(points,_lineSmoother->GetLastSmoothPointIndex());
+      // Mark the last smooth point set retrieved so that we can pick up here on the next
+      // point set.
+      _lineSmoother->MarkLastSmoothPointIndex();
+   }
+}
+
+void MainScene::DrawDebugSmoothedLines()
+{
    LINE_PIXELS_DATA lp;
    ccColor4F lineColor = ccc4f(0.15, 0.8, 0.1, 0.95);
    const vector<LineSmoother::SMOOTHED_POINT>& points = _lineSmoother->GetSmoothedPointsConst();
-   // Clear ALL lines out of the debug drawing.
    
    // Get the original points, draw them
    lp.color = lineColor;
@@ -301,9 +337,11 @@ void MainScene::DrawSmoothedLines()
             lp.markerRadius = 0.0;
             lp.start = point.point;
             lp.end = point.point;
+            lp.width = point.widthPixels;
             Notifier::Instance().Notify(Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS,&lp);
             lp.start = point.point;
             lp.end = nextPoint.point;
+            lp.width = point.widthPixels;
             Notifier::Instance().Notify(Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS,&lp);
             //           CCLOG("Drawing BEGIN: (%f,%f)",point.point.x,point.point.y);
          }
@@ -312,6 +350,7 @@ void MainScene::DrawSmoothedLines()
             lp.start = point.point;
             lp.end = point.point;
             lp.markerRadius = 0.0;
+            lp.width = point.widthPixels;
             Notifier::Instance().Notify(Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS,&lp);
             /*
             CCLOG("Drawing END (%d of %u): (%f,%f)",
@@ -324,6 +363,7 @@ void MainScene::DrawSmoothedLines()
             lp.markerRadius = 0.0;
             lp.start = point.point;
             lp.end = nextPoint.point;
+            lp.width = point.widthPixels;
             Notifier::Instance().Notify(Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS,&lp);
             /*
              CCLOG("Drawing CONTINUE (%d of %u): (%f,%f) -> (%f,%f)",
@@ -334,9 +374,6 @@ void MainScene::DrawSmoothedLines()
              */
          }
       }
-      // Mark the last smooth point set retrieved so that we can pick up here on the next
-      // point set.
-      _lineSmoother->MarkLastSmoothPointIndex();
       // We still have to draw the "last" last point, Since we get an update every
       // time a new point is added, we have to check if the last point is an end point
       // or not.  If it is, give it a special marker.  This will be the "last point of

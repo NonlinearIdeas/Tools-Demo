@@ -80,6 +80,7 @@ typedef struct LINE_PIXELS_DATA
    CCPoint end;
    ccColor4F color;
    float32 markerRadius;
+   float32 width;
    
    LINE_PIXELS_DATA()
    {
@@ -88,6 +89,7 @@ typedef struct LINE_PIXELS_DATA
       color.b = 1.0f;
       color.a = 1.0f;
       markerRadius = 2.0f;
+      width = 1.0f;
    }
 } LINE_PIXELS_DATA_T;
 

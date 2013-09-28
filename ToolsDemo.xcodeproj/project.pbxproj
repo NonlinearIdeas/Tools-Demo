@@ -305,6 +305,7 @@
 		1A5606D917E91CEF00800EBA /* TapDragPinchInputLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606CE17E91CEF00800EBA /* TapDragPinchInputLayer.cpp */; };
 		1A5606E017E91DB000800EBA /* MathUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606DE17E91DB000800EBA /* MathUtilities.cpp */; };
 		1A5606E317E9334D00800EBA /* LineSmoother.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606E117E9334C00800EBA /* LineSmoother.cpp */; };
+		1A5C914D17F1A0FE00A16E5A /* SmoothLinesLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5C914B17F1A0FE00A16E5A /* SmoothLinesLayer.cpp */; };
 		1A6389D717ED1BDA00178A44 /* LineSmootherCardinal.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A6389D517ED1BDA00178A44 /* LineSmootherCardinal.cpp */; };
 		1A7799FC17EE102700142259 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 1A7799FB17EE102700142259 /* README.md */; };
 /* End PBXBuildFile section */
@@ -952,6 +953,8 @@
 		1A5606DF17E91DB000800EBA /* MathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathUtilities.h; sourceTree = "<group>"; };
 		1A5606E117E9334C00800EBA /* LineSmoother.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineSmoother.cpp; sourceTree = "<group>"; };
 		1A5606E217E9334C00800EBA /* LineSmoother.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineSmoother.h; sourceTree = "<group>"; };
+		1A5C914B17F1A0FE00A16E5A /* SmoothLinesLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SmoothLinesLayer.cpp; sourceTree = "<group>"; };
+		1A5C914C17F1A0FE00A16E5A /* SmoothLinesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SmoothLinesLayer.h; sourceTree = "<group>"; };
 		1A6389D517ED1BDA00178A44 /* LineSmootherCardinal.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineSmootherCardinal.cpp; sourceTree = "<group>"; };
 		1A6389D617ED1BDA00178A44 /* LineSmootherCardinal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineSmootherCardinal.h; sourceTree = "<group>"; };
 		1A7799FB17EE102700142259 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README.md; sourceTree = "<group>"; };
@@ -2250,6 +2253,8 @@
 				1A42244F17EBE09500CDB5D4 /* LineSmootherCatmullRom.h */,
 				1A6389D517ED1BDA00178A44 /* LineSmootherCardinal.cpp */,
 				1A6389D617ED1BDA00178A44 /* LineSmootherCardinal.h */,
+				1A5C914B17F1A0FE00A16E5A /* SmoothLinesLayer.cpp */,
+				1A5C914C17F1A0FE00A16E5A /* SmoothLinesLayer.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -2565,6 +2570,7 @@
 				1A56064117E91C1F00800EBA /* b2Draw.cpp in Sources */,
 				1A56064517E91C1F00800EBA /* b2Math.cpp in Sources */,
 				1A56064817E91C1F00800EBA /* b2Settings.cpp in Sources */,
+				1A5C914D17F1A0FE00A16E5A /* SmoothLinesLayer.cpp in Sources */,
 				1A56064B17E91C1F00800EBA /* b2StackAllocator.cpp in Sources */,
 				1A56064E17E91C1F00800EBA /* b2Timer.cpp in Sources */,
 				1A56065217E91C1F00800EBA /* b2Body.cpp in Sources */,

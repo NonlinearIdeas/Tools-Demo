@@ -26,7 +26,7 @@
 
 #include "LineSmoother.h"
 
-#define DEBUG_LINE_SMOOTHER
+//#define DEBUG_LINE_SMOOTHER
 
 
 /* Calculate the Hermite Spline at a given value of t, where t is drawn from [0,1].
@@ -136,12 +136,12 @@ void LineSmoother::CalculateVelocities(uint32 newPointIndex)
 // Calculate velocities for the original new point at newPointIndex.
 void LineSmoother::CalculateWidths(uint32 newPointIndex)
 {
-   const float WIDTH_MIN = 1.0f;
+   const float WIDTH_MIN = 3.0f;
    const float WIDTH_MAX = 10.0f;
    
    if(newPointIndex == 0)
    {
-      _orgPoints[newPointIndex].widthPixels = 1.0;
+      _orgPoints[newPointIndex].widthPixels = WIDTH_MIN;
    }
    else
    {
@@ -169,7 +169,7 @@ void LineSmoother::Reset()
 {
    _orgPoints.clear();
    _smoothPoints.clear();
-   _lastSmoothPointIndex = 1;
+   _lastSmoothPointIndex = 0;
 }
 
 void LineSmoother::LineBegin(const CCPoint& point, double timestamp)
@@ -212,16 +212,16 @@ void LineSmoother::LineEnd(const CCPoint& point, double timestamp)
 #ifdef DEBUG_LINE_SMOOTHER
    // Dump the original point data for the line.
    CCLOG("--------------------------------------------------");
+   /*
    for(int idx = 0; idx < _orgPoints.size(); idx++)
       _orgPoints[idx].Dump(idx);
+    */
    CCLOG("--------------------------------------------------");
    CCLOG("Total Points: ORG:(%lu), SMOOTHED:(%lu)",
          _orgPoints.size(),_smoothPoints.size());
    CCLOG("--------------------------------------------------");
-   /*
    for(int idx = 0; idx < _smoothPoints.size(); idx++)
       _smoothPoints[idx].Dump(idx);
-    */
 #endif
 }
 
