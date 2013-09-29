@@ -73,7 +73,6 @@ public:
       double timestamp;
       LINE_POSITION_T position;
       CCPoint tangent;
-      uint32 smoothedStartIndex;
       float pointsPerSecond;
       float pointsPerSecondRaw;
       float widthPixels;
@@ -87,19 +86,17 @@ public:
          position = position_;
          tangent = tangent_;
          timestamp = timestamp_;
-         smoothedStartIndex = 0;
          pointsPerSecond = 1.0f;
          widthPixels = 1.0f;
       }
       void Dump(int pointIdx=-1) const
       {
-         CCLOG("ORIGINAL POINT(%d): POINT:(%f,%f), POS:(%s), TAN:(%f,%f), TIME:(%f), SSI:(%u), WIDTH:(%f), VEL:(%f)",
+         CCLOG("ORIGINAL POINT(%d): POINT:(%f,%f), POS:(%s), TAN:(%f,%f), TIME:(%f),  WIDTH:(%f), VEL:(%f)",
                pointIdx,
                point.x,point.y,
                position == LP_BEGIN?"BEGIN":position == LP_CONTINUE?"CONTINUE":"END",
                tangent.x,tangent.y,
                timestamp,
-               smoothedStartIndex,
                widthPixels,
                pointsPerSecond
                );
@@ -156,11 +153,7 @@ protected:
    vector<SMOOTHED_POINT>& GetSmoothedPoints() { return _smoothPoints; }
    void AddSmoothedPoint(const SMOOTHED_POINT& sm) { _smoothPoints.push_back(sm); }
    CCPoint HermiteSpline(float t, CCPoint p0, CCPoint p1, CCPoint m0, CCPoint m1);
-   
-   // Call this from your smoothing algorithm to mark the size of the smoothPoints
-   // list into the original point set.  You don't have to do this if you don't
-   // use the smoothedStartIndex later.
-   void MarkSmoothingStart(uint32 pointIndex);
+
    
 public:
    // Resets the data points.

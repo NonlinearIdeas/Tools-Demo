@@ -42,16 +42,12 @@ void LineSmootherCatmullRom::CalculateSmoothPoints(uint32 newPointIndex)
    if(newPointIndex == 2)
    {  // Must mean we have only 3 points in there.
       // So the first point is the starting point.
-      ORIGINAL_POINT& p2 = orgPoints[newPointIndex];
-      ORIGINAL_POINT& p1 = orgPoints[newPointIndex-1];
       ORIGINAL_POINT& p0 = orgPoints[newPointIndex-2];
-      
-      assert(p0.position == LP_BEGIN);
-      p0.tangent = ccpSub(p1.point, p0.point);
-      p1.tangent = ccpMult(ccpSub(p2.point, p0.point),0.5f);
+      ORIGINAL_POINT& p1 = orgPoints[newPointIndex-1];
+      ORIGINAL_POINT& p2 = orgPoints[newPointIndex];
       
       // Fill in the curve between the first point and the second.
-      float distPixels = ccpDistance(p1.point, p0.point);
+      float distPixels = ccpDistance(p0.point, p1.point);
       int ticks = MAX(4, distPixels/pixelsPerTick);
       double dt = 1.0/(ticks);
       SMOOTHED_POINT smPt;
@@ -59,7 +55,8 @@ void LineSmootherCatmullRom::CalculateSmoothPoints(uint32 newPointIndex)
       for(int idx = 0; idx < ticks; idx++)
       {
          float time = idx*dt;
-         smPt.point = HermiteSpline(time, p0.point, p1.point, p0.tangent, p1.tangent);
+         smPt.point.x = MathUtilities::LinearTween(time,p0.point.x,p1.point.x);
+         smPt.point.y = MathUtilities::LinearTween(time,p0.point.y,p1.point.y);
          smPt.widthPixels = MathUtilities::LinearTween(time, p0.widthPixels, p1.widthPixels);
          smoothPoints.push_back(smPt);
       }
@@ -70,9 +67,6 @@ void LineSmootherCatmullRom::CalculateSmoothPoints(uint32 newPointIndex)
       {
          smoothPoints[smoothPoints.size()-1].position = LP_END;
       }
-      // We need to mark the position where the second point begins in the
-      // smoothed list.
-      MarkSmoothingStart(1);
    }
    else
    {  // Beyond three points.
@@ -81,8 +75,6 @@ void LineSmootherCatmullRom::CalculateSmoothPoints(uint32 newPointIndex)
       ORIGINAL_POINT& p2 = orgPoints[newPointIndex-1];
       ORIGINAL_POINT& p1 = orgPoints[newPointIndex-2];
       ORIGINAL_POINT& p0 = orgPoints[newPointIndex-3];
-      
-      MarkSmoothingStart(newPointIndex-2);
       
       float distPixels = ccpDistance(p2.point, p1.point);
       int ticks = MAX(4, distPixels/pixelsPerTick);
@@ -108,26 +100,7 @@ void LineSmootherCatmullRom::CalculateSmoothPoints(uint32 newPointIndex)
          smoothPoints.push_back(smPt);
        }
       if(p3.position == LP_END)
-      {  // Finish out the last section with a cubic hermite spline.
-         p3.tangent = ccpSub(p3.point, p2.point);
-         p2.tangent = ccpMult(ccpSub(p3.point, p1.point), 0.5f);
-         
-         // Mark the position for the smooth points index.
-         MarkSmoothingStart(newPointIndex-1);
-         
-         // Fill in the curve between the first point and the second.
-         float distPixels = ccpDistance(p3.point, p2.point);
-         int ticks = MAX(4, distPixels/pixelsPerTick);
-         double dt = 1.0/(ticks);
-         SMOOTHED_POINT smPt;
-         smPt.position = LP_CONTINUE;
-         for(int idx = 0; idx <= ticks; idx++)
-         {
-            float time = idx*dt;
-            smPt.point = HermiteSpline(time, p2.point, p3.point, p2.tangent, p3.tangent);
-            smPt.widthPixels = MathUtilities::LinearTween(time, p2.widthPixels, p3.widthPixels);
-            smoothPoints.push_back(smPt);
-         }
+      {
          // The last point is the END point.
          smoothPoints[smoothPoints.size()-1].position = LP_END;
       }

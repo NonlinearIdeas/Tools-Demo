@@ -98,7 +98,6 @@ void LineSmootherCardinal::CalculateSmoothPoints(uint32 newPointIndex)
       //      smPt.point.x,smPt.point.y,smoothPoints.size(),smPt.position == LP_BEGIN?"BEGIN":smPt.position==LP_END?"END":"CONTINUE");
    }
    // Mark the index for the smoothed data.
-   MarkSmoothingStart(newPointIndex-1);
    if(p2.position == LP_END)
    {
       distPixels = ccpDistance(p2.point, p1.point);

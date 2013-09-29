@@ -111,13 +111,15 @@ void LineSmoother::CalculateVelocities(uint32 newPointIndex)
    {
       const float PPS_MIN = 100.0f;
       const float PPS_MAX = 3000.0f;
+      const float TS_MIN = 0.005f;  //  5 ms
+      const float TS_MAX = 0.020f;  // 20 ms
       
       ORIGINAL_POINT& p0 = _orgPoints[newPointIndex-1];
       ORIGINAL_POINT& p1 = _orgPoints[newPointIndex];
       
       float dist = ccpDistance(p0.point, p1.point);
-      float dt = p1.timestamp-p0.timestamp;
-      assert(dt > 0.0f);
+      float dt = clampf(p1.timestamp-p0.timestamp,TS_MIN,TS_MAX);
+      
       float ppsRaw = dist/dt;
       p1.pointsPerSecondRaw = ppsRaw;
       // Do some median filtering on the point velocities to reject spikes
@@ -136,8 +138,8 @@ void LineSmoother::CalculateVelocities(uint32 newPointIndex)
 // Calculate velocities for the original new point at newPointIndex.
 void LineSmoother::CalculateWidths(uint32 newPointIndex)
 {
-   const float WIDTH_MIN = 3.0f;
-   const float WIDTH_MAX = 10.0f;
+   const float WIDTH_MIN = 0.25f;
+   const float WIDTH_MAX = 20.0f;
    
    if(newPointIndex == 0)
    {
@@ -146,14 +148,14 @@ void LineSmoother::CalculateWidths(uint32 newPointIndex)
    else
    {
       const float WIDTH_EPSILON = 0.25;
-      const float GROWTH_FACTOR = 0.75;
+      const float GROWTH_FACTOR = 0.15;
       
       ORIGINAL_POINT& p0 = _orgPoints[newPointIndex-1];
       ORIGINAL_POINT& p1 = _orgPoints[newPointIndex];
       
       // Width for the current point.
       p1.widthPixels = p0.widthPixels;
-      float widthEstimate = clampf(p1.pointsPerSecond/200.0f, WIDTH_MIN, WIDTH_MAX);
+      float widthEstimate = clampf(p1.pointsPerSecond/100.0f, WIDTH_MIN, WIDTH_MAX);
       float deltaWidthEstmate = widthEstimate-p1.widthPixels;
       //      CCLOG("width:%f, widthEstimate:%f, delta:%f",p1.widthPixels,widthEstimate,deltaWidthEstmate);
       if(fabs(deltaWidthEstmate) > WIDTH_EPSILON)
@@ -206,6 +208,7 @@ void LineSmoother::LineEnd(const CCPoint& point, double timestamp)
    assert(_orgPoints.size() > 0 &&
           _orgPoints[_orgPoints.size()-1].position != LP_END);
    ORIGINAL_POINT op;
+      
    op.Init(point, timestamp, LP_END, ccp(0.0f,0.0f));
    _orgPoints.push_back(op);
    ProcessNewPoint();
@@ -223,13 +226,6 @@ void LineSmoother::LineEnd(const CCPoint& point, double timestamp)
    for(int idx = 0; idx < _smoothPoints.size(); idx++)
       _smoothPoints[idx].Dump(idx);
 #endif
-}
-
-
-void LineSmoother::MarkSmoothingStart(uint32 pointIndex)
-{
-   assert(pointIndex < _orgPoints.size());
-   _orgPoints[pointIndex].smoothedStartIndex = _smoothPoints.size();
 }
 
 LineSmoother::LineSmoother()

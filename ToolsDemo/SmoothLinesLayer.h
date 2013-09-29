@@ -51,7 +51,7 @@ private:
    bool init();
    
    void DrawSmoothLines();
-   void DrawHalfCircle(const SMOOTHED_POINT& p0, const SMOOTHED_POINT& p1, bool flip);
+   void DrawHalfCircle(const SMOOTHED_POINT& p0, const SMOOTHED_POINT& p1, bool flip, float width);
    void DrawSmoothedLineSegment(const SMOOTHED_POINT& p0, const SMOOTHED_POINT& p1, const SMOOTHED_POINT& p2);
    void DrawVertices();
    

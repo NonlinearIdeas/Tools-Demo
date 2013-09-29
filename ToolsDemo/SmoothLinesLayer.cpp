@@ -132,7 +132,7 @@ void SmoothLinesLayer::DrawVertices()
    glVertexAttribPointer(kCCVertexAttrib_Position, 3, GL_FLOAT, GL_FALSE, sizeof(VERTEX), &_vertices[0].x);
    glVertexAttribPointer(kCCVertexAttrib_Color, 4, GL_FLOAT, GL_FALSE, sizeof(VERTEX), &_vertices[0].color);
    glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-   //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+   //   glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    glDrawArrays(GL_TRIANGLES, 0, _vertices.size());
 
    // Clear out, we are done with these.
@@ -160,14 +160,12 @@ void SmoothLinesLayer::DrawSmoothLines()
       
       if(p0.position == LineSmoother::LP_BEGIN)
       {  // First point of a new line.
-         DrawSmoothedLineSegment(p0, p2, p2);
-         DrawHalfCircle(p1,p2,true);
+         DrawHalfCircle(p0,p1,true, p1.widthPixels);
       }
       DrawSmoothedLineSegment(p0, p1, p2);
       if(p2.position == LineSmoother::LP_END)
       {
-         DrawSmoothedLineSegment(p1, p2, p2);
-         DrawHalfCircle(p0,p1,false);
+         DrawHalfCircle(p1,p2,false, p1.widthPixels);
       }
    }
    
@@ -185,13 +183,8 @@ void SmoothLinesLayer::DrawSmoothLines()
 }
 
 
-void SmoothLinesLayer::DrawHalfCircle(const SMOOTHED_POINT& p0, const SMOOTHED_POINT& p1, bool flip)
+void SmoothLinesLayer::DrawHalfCircle(const SMOOTHED_POINT& p0, const SMOOTHED_POINT& p1, bool flip, float widthPixels)
 {
-#ifdef DEBUG_SMOOTH_LINES_LAYER
-   CCLOG("Half Circle: (%f,%f) -> (%f,%f)",
-         p0.point.x,p0.point.y,
-         p1.point.x,p1.point.y);
-#endif
    ccColor4F drawColorClear =  ccc4f(_drawColor.r, _drawColor.g, _drawColor.b, 0.0f);
    ccColor4F drawColor = _drawColor;
    const int slices = 16;
@@ -205,7 +198,6 @@ void SmoothLinesLayer::DrawHalfCircle(const SMOOTHED_POINT& p0, const SMOOTHED_P
       // is flipped along the axis from p0 to p1.
       p1p = ccpAdd(p0p,ccpMult(ccpSub(p0p, p1p), 2));
    }
-   float p0width = p0.widthPixels;
    
    CCPoint p01np = ccpPerp(ccpNormalize(ccpSub(p0p, p1p)));
    float thetaStart = atan2f(p01np.y, p01np.x);
@@ -222,10 +214,10 @@ void SmoothLinesLayer::DrawHalfCircle(const SMOOTHED_POINT& p0, const SMOOTHED_P
       float cosNext = cosf(theta+dtheta);
       float sinNext = sinf(theta+dtheta);
       
-      CCPoint A = ccpAdd(p0p, ccpMult(ccp(cosCurr,sinCurr),p0width/2));
-      CCPoint B = ccpAdd(p0p, ccpMult(ccp(cosNext,sinNext),p0width/2));
-      CCPoint C = ccpAdd(p0p, ccpMult(ccp(cosCurr,sinCurr),p0width/2+OVERDRAW_LEVEL));
-      CCPoint D = ccpAdd(p0p, ccpMult(ccp(cosNext,sinNext),p0width/2+OVERDRAW_LEVEL));
+      CCPoint A = ccpAdd(p0p, ccpMult(ccp(cosCurr,sinCurr),widthPixels/2));
+      CCPoint B = ccpAdd(p0p, ccpMult(ccp(cosNext,sinNext),widthPixels/2));
+      CCPoint C = ccpAdd(p0p, ccpMult(ccp(cosCurr,sinCurr),widthPixels/2+OVERDRAW_LEVEL));
+      CCPoint D = ccpAdd(p0p, ccpMult(ccp(cosNext,sinNext),widthPixels/2+OVERDRAW_LEVEL));
       
       cosCurr = cosNext;
       sinCurr = sinNext;
@@ -251,11 +243,6 @@ void SmoothLinesLayer::DrawHalfCircle(const SMOOTHED_POINT& p0, const SMOOTHED_P
 
 void SmoothLinesLayer::DrawSmoothedLineSegment(const SMOOTHED_POINT& p0, const SMOOTHED_POINT& p1, const SMOOTHED_POINT& p2)
 {
-#ifdef DEBUG_SMOOTH_LINES_LAYER
-   CCLOG("Draw Smoothed Line: (%f,%f) -> (%f,%f)",
-         p0.point.x,p0.point.y,
-         p1.point.x,p1.point.y);
-#endif
    VERTEX vertex;
    ccColor4F drawColorClear =  ccc4f(_drawColor.r, _drawColor.g, _drawColor.b, 0.0f);
    

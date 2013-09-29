@@ -56,6 +56,7 @@ bool MainScene::init()
    
    _smoothLinesLayer = SmoothLinesLayer::create();
    assert(_smoothLinesLayer != NULL);
+   _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 0.0f, 0.0f, 1.0f));
    addChild(_smoothLinesLayer);
    
    
@@ -178,8 +179,12 @@ void MainScene::CreateMenu()
 {
    vector<string> labels;
    labels.push_back("Reset Lines");
-   labels.push_back("Toggle Original");
-   labels.push_back("Toggle Smoothed");
+   labels.push_back("Toggle Debug");
+   labels.push_back("Red Ink");
+   labels.push_back("Green Ink");
+   labels.push_back("Blue Ink");
+   labels.push_back("Black Ink");
+   
    DebugMenuLayer* layer = DebugMenuLayer::create(labels);
    layer->GetMenu()->setColor(ccc3(0, 0, 0));
    assert(layer != NULL);
@@ -214,9 +219,19 @@ void MainScene::HandleMenuChoice(uint32 choice)
          break;
       case 1:
          ToggleShowingOriginal();
+         ToggleShowSmoothed();
          break;
       case 2:
-         ToggleShowSmoothed();
+         _smoothLinesLayer->SetDrawColor(ccc4f(1.0f, 0.0f, 0.0f, 1.0f));
+         break;
+      case 3:
+         _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 1.0f, 0.0f, 1.0f));
+         break;
+      case 4:
+         _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 0.0f, 1.0f, 1.0f));
+         break;
+      case 5:
+         _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 0.0f, 0.0f, 1.0f));
          break;
       default:
          assert(false);
@@ -302,8 +317,6 @@ void MainScene::DrawSmoothedLines()
    const vector<LineSmoother::SMOOTHED_POINT>& points = _lineSmoother->GetSmoothedPointsConst();
    if(points.size() > _lineSmoother->GetLastSmoothPointIndex())
    {
-      // Set the line color.
-      _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 0.0f, 0.0f, 1.0f));
       // Add the points to the smoothed line layer.
       _smoothLinesLayer->AddSmoothedPoints(points,_lineSmoother->GetLastSmoothPointIndex());
       // Mark the last smooth point set retrieved so that we can pick up here on the next
@@ -322,7 +335,7 @@ void MainScene::DrawDebugSmoothedLines()
    lp.color = lineColor;
    if(points.size() > 1)
    {
-      for(int idx = _lineSmoother->GetLastSmoothPointIndex(); idx < points.size(); idx++)
+      for(int idx = MAX(_lineSmoother->GetLastSmoothPointIndex(),1); idx < points.size(); idx++)
       {
          const LineSmoother::SMOOTHED_POINT& point = points[idx-1];
          const LineSmoother::SMOOTHED_POINT& nextPoint = points[idx];
