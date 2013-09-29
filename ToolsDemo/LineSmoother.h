@@ -74,7 +74,6 @@ public:
       LINE_POSITION_T position;
       CCPoint tangent;
       float pointsPerSecond;
-      float pointsPerSecondRaw;
       float widthPixels;
       
       void Init(const CCPoint& point_,

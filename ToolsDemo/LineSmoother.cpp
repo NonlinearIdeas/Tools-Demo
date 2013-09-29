@@ -28,6 +28,10 @@
 
 //#define DEBUG_LINE_SMOOTHER
 
+const float PPS_MIN = 100.0f;
+const float PPS_MAX = 2000.0f;
+const float WIDTH_MIN = 0.1f;
+const float WIDTH_MAX = 30.0f;
 
 /* Calculate the Hermite Spline at a given value of t, where t is drawn from [0,1].
  * Outputs: Interpolated point.
@@ -102,67 +106,61 @@ float Median(float a, float b, float c)
 void LineSmoother::CalculateVelocities(uint32 newPointIndex)
 {
 
-   if(newPointIndex == 0)
-   {  // Must be the first point.
-      _orgPoints[newPointIndex].pointsPerSecond = 0.0f;
-      _orgPoints[newPointIndex].pointsPerSecondRaw = 0.0f;
+   const float TS_MIN = 0.010f;  // 5 ms
+   const float TS_MAX = 0.100f;  // 100 ms
+   
+   if(newPointIndex < 3)
+   {  // Must be the first couple of points.
+      _orgPoints[newPointIndex].pointsPerSecond = PPS_MIN;
    }
    else
    {
-      const float PPS_MIN = 100.0f;
-      const float PPS_MAX = 3000.0f;
-      const float TS_MIN = 0.005f;  //  5 ms
-      const float TS_MAX = 0.020f;  // 20 ms
       
-      ORIGINAL_POINT& p0 = _orgPoints[newPointIndex-1];
-      ORIGINAL_POINT& p1 = _orgPoints[newPointIndex];
+      ORIGINAL_POINT& p0 = _orgPoints[newPointIndex-2];
+      ORIGINAL_POINT& p1 = _orgPoints[newPointIndex-1];
+      ORIGINAL_POINT& p2 = _orgPoints[newPointIndex-0];
       
-      float dist = ccpDistance(p0.point, p1.point);
-      float dt = clampf(p1.timestamp-p0.timestamp,TS_MIN,TS_MAX);
+      float dist = ccpDistance(p2.point, p1.point);
+      float dt = clampf(p2.timestamp-p1.timestamp,TS_MIN,TS_MAX);
       
-      float ppsRaw = dist/dt;
-      p1.pointsPerSecondRaw = ppsRaw;
-      // Do some median filtering on the point velocities to reject spikes
-      if(newPointIndex == 1)
-      {  // Must be the second point.
-         ppsRaw = Median(ppsRaw, ppsRaw, p0.pointsPerSecondRaw);
-      }
-      else
-      {
-         ppsRaw = Median(ppsRaw, p0.pointsPerSecondRaw, _orgPoints[newPointIndex-2].pointsPerSecondRaw);
-      }
-      p1.pointsPerSecond = clampf(ppsRaw,PPS_MIN,PPS_MAX);
+      float ppsRaw = clampf(dist/dt,PPS_MIN,PPS_MAX);
+      // The velocity is the mostly the previous and some of the current point.
+      p2.pointsPerSecond = (ppsRaw + p1.pointsPerSecond + p0.pointsPerSecond)/3.0;
+      // Round to the nearest 10 pps.
+      //      p2.pointsPerSecond = roundf(p2.pointsPerSecond/25)*25;
+      /*
+      CCLOG("PPS(final):%f, dist:%f, dt:%f ms, PPS(raw):%f, PPS(rawClamped):%f",
+            p2.pointsPerSecond,
+            dist,
+            dt*1000,
+            dist/dt,
+            ppsRaw);
+       */
    }
 }
 
 // Calculate velocities for the original new point at newPointIndex.
 void LineSmoother::CalculateWidths(uint32 newPointIndex)
 {
-   const float WIDTH_MIN = 0.25f;
-   const float WIDTH_MAX = 10.0f;
    
-   if(newPointIndex == 0)
+   if(newPointIndex < 3)
    {
       _orgPoints[newPointIndex].widthPixels = WIDTH_MIN;
    }
    else
    {
-      const float WIDTH_EPSILON = 0.25;
-      const float GROWTH_FACTOR = 0.10;
       
-      ORIGINAL_POINT& p0 = _orgPoints[newPointIndex-1];
-      ORIGINAL_POINT& p1 = _orgPoints[newPointIndex];
+      const float WIDTH_PPS_SLOPE = (WIDTH_MAX-WIDTH_MIN)/(PPS_MAX-PPS_MIN);
+      const float WIDTH_PPS_OFFSET = WIDTH_MAX - WIDTH_PPS_SLOPE*PPS_MAX;
       
-      // Width for the current point.
-      p1.widthPixels = p0.widthPixels;
-      float widthEstimate = clampf(p1.pointsPerSecond/100.0f, WIDTH_MIN, WIDTH_MAX);
-      float deltaWidthEstmate = widthEstimate-p1.widthPixels;
-      //      CCLOG("width:%f, widthEstimate:%f, delta:%f",p1.widthPixels,widthEstimate,deltaWidthEstmate);
-      if(fabs(deltaWidthEstmate) > WIDTH_EPSILON)
-      {  // The new estimate is far enough away to warrant a change.
-         p1.widthPixels += deltaWidthEstmate*GROWTH_FACTOR;
-      }
-      p1.widthPixels = clampf(p1.widthPixels, WIDTH_MIN, WIDTH_MAX);
+      ORIGINAL_POINT& p0 = _orgPoints[newPointIndex-2];
+      ORIGINAL_POINT& p1 = _orgPoints[newPointIndex-1];
+      ORIGINAL_POINT& p2 = _orgPoints[newPointIndex-0];
+      
+      p2.widthPixels = (p2.pointsPerSecond*WIDTH_PPS_SLOPE + WIDTH_PPS_OFFSET +
+                        p1.widthPixels +
+                        p0.widthPixels)/3.0f;
+      //p2.widthPixels = roundf(p2.widthPixels);
    }
 }
 
