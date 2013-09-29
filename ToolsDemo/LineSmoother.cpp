@@ -139,7 +139,7 @@ void LineSmoother::CalculateVelocities(uint32 newPointIndex)
 void LineSmoother::CalculateWidths(uint32 newPointIndex)
 {
    const float WIDTH_MIN = 0.25f;
-   const float WIDTH_MAX = 20.0f;
+   const float WIDTH_MAX = 10.0f;
    
    if(newPointIndex == 0)
    {
@@ -148,7 +148,7 @@ void LineSmoother::CalculateWidths(uint32 newPointIndex)
    else
    {
       const float WIDTH_EPSILON = 0.25;
-      const float GROWTH_FACTOR = 0.15;
+      const float GROWTH_FACTOR = 0.10;
       
       ORIGINAL_POINT& p0 = _orgPoints[newPointIndex-1];
       ORIGINAL_POINT& p1 = _orgPoints[newPointIndex];

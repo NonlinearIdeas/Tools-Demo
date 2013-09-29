@@ -50,7 +50,7 @@ DebugMenuLayer* DebugMenuLayer::create(const vector<string>& btnLabels,const CCP
 DebugMenuLayer* DebugMenuLayer::create(const vector<string>& btnLabels)
 {
    CCSize scrSize = CCDirector::sharedDirector()->getWinSize();
-   CCPoint anchor = ccp(scrSize.width * 0.1f,scrSize.height * 0.50);
+   CCPoint anchor = ccp(scrSize.width * 0.05f,scrSize.height * 0.50);
    
    DebugMenuLayer *pRet = new DebugMenuLayer();
    if (pRet && pRet->init(btnLabels,anchor))

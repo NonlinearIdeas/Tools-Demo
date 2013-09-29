@@ -176,12 +176,12 @@ void MainScene::TapDragPinchInputDragEnd(const TOUCH_DATA_T& point0, const TOUCH
 void MainScene::CreateMenu()
 {
    vector<string> labels;
-   labels.push_back("Reset Lines");
-   labels.push_back("Toggle Debug");
-   labels.push_back("Red Ink");
-   labels.push_back("Green Ink");
-   labels.push_back("Blue Ink");
-   labels.push_back("Black Ink");
+   labels.push_back("Reset");
+   labels.push_back("Debug");
+   labels.push_back("Red");
+   labels.push_back("Green");
+   labels.push_back("Blue");
+   labels.push_back("Black");
    
    DebugMenuLayer* layer = DebugMenuLayer::create(labels);
    layer->GetMenu()->setColor(ccc3(0, 0, 0));
