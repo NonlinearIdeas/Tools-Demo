@@ -35,7 +35,7 @@
 MainScene::MainScene()
 {
    _lineSmoother = new LineSmootherCatmullRom();
-   //_lineSmoother = new LineSmootherCardinal();
+   //   _lineSmoother = new LineSmootherCardinal();
 }
 
 MainScene::~MainScene()
@@ -63,6 +63,7 @@ bool MainScene::init()
    // Adding the debug lines so that we can draw the original
    // and smoothed data.
    layer = DebugLinesLayer::create();
+   layer->setVisible(false);
    assert(layer != NULL);
    addChild(layer);
    
@@ -73,9 +74,6 @@ bool MainScene::init()
    layer = TapDragPinchInputLayer::create(this);
    assert(layer != NULL);
    addChild(layer);
-   
-   _showOriginal = false;
-   _showSmoothedLine = false;
    
    return true;
 }
@@ -198,16 +196,9 @@ void MainScene::ResetDisplay()
    Notifier::Instance().Notify(Notifier::NE_RESET_DRAW_CYCLE);
 }
 
-void MainScene::ToggleShowSmoothed()
+void MainScene::ToggleDebug()
 {
-   _showSmoothedLine = !_showSmoothedLine;
-   ResetDisplay();
-}
-
-void MainScene::ToggleShowingOriginal()
-{
-   _showOriginal = !_showOriginal;
-   ResetDisplay();
+   Notifier::Instance().Notify(Notifier::NE_DEBUG_LINES_TOGGLE_VISIBILITY);
 }
 
 void MainScene::HandleMenuChoice(uint32 choice)
@@ -218,17 +209,16 @@ void MainScene::HandleMenuChoice(uint32 choice)
          ResetDisplay();
          break;
       case 1:
-         ToggleShowingOriginal();
-         ToggleShowSmoothed();
+         ToggleDebug();
          break;
       case 2:
-         _smoothLinesLayer->SetDrawColor(ccc4f(1.0f, 0.0f, 0.0f, 1.0f));
+         _smoothLinesLayer->SetDrawColor(ccc4f(1.0f, 0.0f, 0.0f, 0.90f));
          break;
       case 3:
-         _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 1.0f, 0.0f, 1.0f));
+         _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 1.0f, 0.0f, 0.90f));
          break;
       case 4:
-         _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 0.0f, 1.0f, 1.0f));
+         _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 0.0f, 1.0f, 0.90f));
          break;
       case 5:
          _smoothLinesLayer->SetDrawColor(ccc4f(0.0f, 0.0f, 0.0f, 1.0f));
@@ -241,14 +231,8 @@ void MainScene::HandleMenuChoice(uint32 choice)
 
 void MainScene::DrawLines()
 {
-   if(_showOriginal)
-   {
-      DrawDebugOriginalLines();
-   }
-   if(_showSmoothedLine)
-   {
-      DrawDebugSmoothedLines();
-   }
+   DrawDebugOriginalLines();
+   DrawDebugSmoothedLines();
    DrawSmoothedLines();
 }
 
@@ -256,7 +240,7 @@ void MainScene::DrawLines()
 void MainScene::DrawDebugOriginalLines()
 {
    LINE_PIXELS_DATA lp;
-   ccColor4F lineColor = ccc4f(0.8, 0.1, 0.1, 0.75);
+   ccColor4F lineColor = ccc4f(0.8, 0.1, 0.1, 0.90);
    const vector<LineSmoother::ORIGINAL_POINT>& points = _lineSmoother->GetOriginalPointsConst();
    // Clear ALL lines out of the debug drawing.
    

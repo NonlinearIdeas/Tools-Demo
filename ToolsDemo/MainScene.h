@@ -48,8 +48,6 @@ private:
    LineSmoother* _lineSmoother;
    SmoothLinesLayer* _smoothLinesLayer;
    
-   bool _showOriginal;
-   bool _showSmoothedLine;
 protected:
    // This is protected so that derived classes can call it
    // in their create methods.
@@ -63,8 +61,7 @@ private:
    void DrawSmoothedLines();
    void DrawLines();
    void ResetDisplay();
-   void ToggleShowingOriginal();
-   void ToggleShowSmoothed();
+   void ToggleDebug();
 
 public:
    

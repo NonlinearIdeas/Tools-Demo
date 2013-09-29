@@ -100,27 +100,7 @@ void LineSmootherCardinal::CalculateSmoothPoints(uint32 newPointIndex)
    // Mark the index for the smoothed data.
    if(p2.position == LP_END)
    {
-      distPixels = ccpDistance(p2.point, p1.point);
-      ticks = MAX(4, distPixels/pixelsPerTick);
-
-      dt = 1.0/(ticks);
-      for(int idx = 0; idx <= ticks; idx++)
-      {
-         float time = idx*dt;
-         if(idx == ticks)
-         {
-            smPt.position = LP_END;
-            smPt.point = p2.point;
-         }
-         else
-         {
-            smPt.position = LP_CONTINUE;
-            smPt.point = HermiteSpline(time, p1.point, p2.point, p1.tangent, p2.tangent);
-         }
-         smPt.widthPixels = MathUtilities::LinearTween(time, p1.widthPixels, p2.widthPixels);
-         smoothPoints.push_back(smPt);
-         //      CCLOG("Pushed point (%f,%f) onto smoothed points (size = %d) (position = %s)",
-         //      smPt.point.x,smPt.point.y,smoothPoints.size(),smPt.position == LP_BEGIN?"BEGIN":smPt.position==LP_END?"END":"CONTINUE");
-      }
+      // The last point is the END point.
+      smoothPoints[smoothPoints.size()-1].position = LP_END;
    }
 }
