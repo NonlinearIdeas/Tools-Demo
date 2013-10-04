@@ -71,7 +71,8 @@ class Notifier : public SingletonDynamic<Notifier>
 public:
    typedef enum
    {
-      NE_DEBUG_BUTTON_PRESSED,
+      NE_MIN = 0,
+      NE_DEBUG_BUTTON_PRESSED = NE_MIN,
       NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS,
       NE_DEBUG_LINES_TOGGLE_VISIBILITY,
       NE_RESET_DRAW_CYCLE,
@@ -115,14 +116,22 @@ public:
    void Detach(Notified* observer);
    
    /* The design of this interface is very specific.  I could 
-      create a class to hold all the event data and then the
-      method would just have take that object.  But then I would
-      have to search for every place in the code that created an 
-      object to be used and make sure it updated the passed in
-      object when a member is added to it.  This way, a break
-      occurs at compile time that must be addressed.
+    * create a class to hold all the event data and then the
+    * method would just have take that object.  But then I would
+    * have to search for every place in the code that created an
+    * object to be used and make sure it updated the passed in
+    * object when a member is added to it.  This way, a break
+    * occurs at compile time that must be addressed.
     */
    void Notify(NOTIFIED_EVENT_TYPE_T, const void* eventData = NULL);
+   
+   /* Used for CPPUnit.  Could create a Mock...maybe...but this seems
+    * like it will get the job done with minimal fuss.  For now.
+    */
+   // Return all events that this object is registered for.
+   vector<NOTIFIED_EVENT_TYPE_T> GetEvents(Notified* observer);
+   // Return all objects registered for this event.
+   vector<Notified*> GetNotified(NOTIFIED_EVENT_TYPE_T event);
 };
 
 /* This is the base class for anything that can receive notifications.

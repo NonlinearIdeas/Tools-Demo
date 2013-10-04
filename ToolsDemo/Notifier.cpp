@@ -38,6 +38,15 @@ void Notifier::Reset()
 
 void Notifier::Attach(Notified* observer, NOTIFIED_EVENT_TYPE_T eventType)
 {
+   if(observer == NULL)
+   {
+      throw std::out_of_range("observer == NULL");
+   }
+   if(eventType < NE_MIN || eventType >= NE_MAX)
+   {
+      throw std::out_of_range("eventType out of range");
+   }
+   
    _mapIter = _notifiedMap.find(observer);
    if(_mapIter == _notifiedMap.end())
    {  // Registering for the first time.
@@ -107,6 +116,15 @@ void Notifier::RemoveNotified(NOTIFIED_VECTOR_T& notified, Notified* observer)
 
 void Notifier::Detach(Notified* observer, NOTIFIED_EVENT_TYPE_T eventType)
 {
+   if(observer == NULL)
+   {
+      throw std::out_of_range("observer == NULL");
+   }
+   if(eventType < NE_MIN || eventType >= NE_MAX)
+   {
+      throw std::out_of_range("eventType out of range");
+   }
+   
    _mapIter = _notifiedMap.find(observer);
    if(_mapIter != _notifiedMap.end())
    {  // Was registered
@@ -127,6 +145,11 @@ void Notifier::Detach(Notified* observer, NOTIFIED_EVENT_TYPE_T eventType)
 
 void Notifier::Detach(Notified* observer)
 {
+   if(observer == NULL)
+   {
+      throw std::out_of_range("observer == NULL");
+   }
+   
    _mapIter = _notifiedMap.find(observer);
    if(_mapIter != _notifiedMap.end())
    {
@@ -149,6 +172,12 @@ void Notifier::Detach(Notified* observer)
 
 void Notifier::Notify(NOTIFIED_EVENT_TYPE_T eventType, const void* eventData)
 {
+   
+   if(eventType < NE_MIN || eventType >= NE_MAX)
+   {
+      throw std::out_of_range("eventType out of range");
+   }
+   
    NOTIFIED_VECTOR_T& notified = _notifiedVector[eventType];
 
    // If a call to Notify leads to a call to Notify, we need to keep track of
@@ -197,3 +226,25 @@ Notified::~Notified()
 {
    Notifier::Instance().Detach(this);
 }
+
+// Return all events that this object is registered for.
+vector<Notifier::NOTIFIED_EVENT_TYPE_T> Notifier::GetEvents(Notified* observer)
+{
+   vector<Notifier::NOTIFIED_EVENT_TYPE_T> result;
+   
+   _mapIter = _notifiedMap.find(observer);
+   if(_mapIter != _notifiedMap.end())
+   {
+      // These are all the event types this observer was registered for.
+      result = _mapIter->second;
+   }
+
+   return result;
+}
+
+// Return all objects registered for this event.
+vector<Notified*> Notifier::GetNotified(NOTIFIED_EVENT_TYPE_T event)
+{
+   return _notifiedVector[event];
+}
+

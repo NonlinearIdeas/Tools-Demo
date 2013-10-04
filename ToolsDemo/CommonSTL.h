@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <cassert>
 #include <sstream>
+#include <stdexcept>
 #include <tr1/unordered_map>
 
 using namespace std;

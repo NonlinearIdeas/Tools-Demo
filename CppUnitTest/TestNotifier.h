@@ -35,19 +35,48 @@
  */
 class TestNotifier : public CppUnit::TestFixture
 {
+   
 public:
    TestNotifier();
    ~TestNotifier();
    
-public:
-   void TestInit();
+   // Verify we can fetch all the messages for an object.
+   void TestFetchMessagesForObject();
+   // Verify we can fetch all the objects for each message type.
+   void TestFetchObjectsForMessages();
+   // Verify if we delete an object, it is removed from the Notifier.
+   void TestDeleteObject();
+   // Verify if we Attach an object, it can receive Notify(...) calls.
+   void TestAttach();
+   // Verify if we Detach an object, it an object can no longer receive Notify calls.
+   void TestDetach();
+   // Verify if a Notify(...) call leads to an object being deleted,
+   // it does not get a call to Notify(...).
+   void TestDeleteViaNotify();
+   // Verify Reset leaves the Notifier empty.
+   void TestReset();
+   // Verify arguments work correct.
+   void TestInputArguments();
+   // Verify if you register for the same even twice, you
+   // only receive it once.
+   void TestDoubleAttach();
    
-public:
    void setUp();
    void tearDown();
    
+   
+   
+public:
    CPPUNIT_TEST_SUITE(TestNotifier);
-   CPPUNIT_TEST(TestInit);
+   CPPUNIT_TEST(TestFetchMessagesForObject);
+   CPPUNIT_TEST(TestFetchObjectsForMessages);
+   CPPUNIT_TEST(TestDeleteObject);
+   CPPUNIT_TEST(TestAttach);
+   CPPUNIT_TEST(TestDoubleAttach);
+   CPPUNIT_TEST(TestDetach);
+   CPPUNIT_TEST(TestDeleteViaNotify);
+   CPPUNIT_TEST(TestReset);
+   CPPUNIT_TEST(TestInputArguments);
    CPPUNIT_TEST_SUITE_END();
    
 };
