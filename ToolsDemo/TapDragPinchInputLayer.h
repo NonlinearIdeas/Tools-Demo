@@ -108,7 +108,6 @@ private:
       DPT_FINGER_DOWN,
       DPT_DRAG,
       DPT_PINCH,
-      DPT_TAP,
    } DPT_STATE_T;
    
    

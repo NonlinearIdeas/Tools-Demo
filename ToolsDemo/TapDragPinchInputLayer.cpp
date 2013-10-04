@@ -76,7 +76,6 @@ void TapDragPinchInputLayer::DrawDebug()
    switch(_state)
    {
       case DPT_IDLE:
-      case DPT_TAP:
          // Nothing to draw.
          break;
       case DPT_FINGER_DOWN:
@@ -120,9 +119,6 @@ bool TapDragPinchInputLayer::ccTouchBegan(CCTouch *touch, CCEvent *pEvent)
 {
    switch(_state)
    {
-      case DPT_DRAG:
-         return false;
-         break;
       case DPT_FINGER_DOWN:
          // If you are already in finger down and another finger comes,
          // you must be trying a pinch.
@@ -138,10 +134,10 @@ bool TapDragPinchInputLayer::ccTouchBegan(CCTouch *touch, CCEvent *pEvent)
          StoreTouchData(touch, &_points[0]);
          _state = DPT_FINGER_DOWN;
          break;
-      case DPT_PINCH:
+      case DPT_DRAG:
          return false;
          break;
-      case DPT_TAP:
+      case DPT_PINCH:
          return false;
          break;
    }
@@ -188,10 +184,7 @@ void TapDragPinchInputLayer::ccTouchMoved(CCTouch *touch, CCEvent *pEvent)
          {  // Point 1 moved.
             StoreTouchData(touch, &_points[1]);
          }
-         _target->TapDragPinchInputPinchEnd(_points[0], _points[1]);
-         break;
-      case DPT_TAP:
-         CCLOG("SHOULD NOT BE IN THIS STATE");
+         _target->TapDragPinchInputPinchContinue(_points[0], _points[1]);
          break;
    }
    
@@ -235,9 +228,6 @@ void TapDragPinchInputLayer::ccTouchEnded(CCTouch *touch, CCEvent *pEvent)
          }
          _target->TapDragPinchInputPinchEnd(_points[0], _points[1]);
          _state = DPT_IDLE;
-         break;
-      case DPT_TAP:
-         CCLOG("SHOULD NOT BE IN THIS STATE");
          break;
    }
 }

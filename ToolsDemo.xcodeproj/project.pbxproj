@@ -2240,21 +2240,21 @@
 				1A5606C417E91CEF00800EBA /* DebugMenuLayer.h */,
 				1A5606E117E9334C00800EBA /* LineSmoother.cpp */,
 				1A5606E217E9334C00800EBA /* LineSmoother.h */,
+				1A42244E17EBE09500CDB5D4 /* LineSmootherCatmullRom.cpp */,
+				1A42244F17EBE09500CDB5D4 /* LineSmootherCatmullRom.h */,
+				1A6389D517ED1BDA00178A44 /* LineSmootherCardinal.cpp */,
+				1A6389D617ED1BDA00178A44 /* LineSmootherCardinal.h */,
 				1A5606C717E91CEF00800EBA /* MainScene.cpp */,
 				1A5606C817E91CEF00800EBA /* MainScene.h */,
 				1A5606C917E91CEF00800EBA /* Notifier.cpp */,
 				1A5606CA17E91CEF00800EBA /* Notifier.h */,
 				1A5606CB17E91CEF00800EBA /* SingletonTemplate.h */,
+				1A5C914B17F1A0FE00A16E5A /* SmoothLinesLayer.cpp */,
+				1A5C914C17F1A0FE00A16E5A /* SmoothLinesLayer.h */,
 				1A5606CC17E91CEF00800EBA /* Stopwatch.cpp */,
 				1A5606CD17E91CEF00800EBA /* Stopwatch.h */,
 				1A5606CE17E91CEF00800EBA /* TapDragPinchInputLayer.cpp */,
 				1A5606CF17E91CEF00800EBA /* TapDragPinchInputLayer.h */,
-				1A42244E17EBE09500CDB5D4 /* LineSmootherCatmullRom.cpp */,
-				1A42244F17EBE09500CDB5D4 /* LineSmootherCatmullRom.h */,
-				1A6389D517ED1BDA00178A44 /* LineSmootherCardinal.cpp */,
-				1A6389D617ED1BDA00178A44 /* LineSmootherCardinal.h */,
-				1A5C914B17F1A0FE00A16E5A /* SmoothLinesLayer.cpp */,
-				1A5C914C17F1A0FE00A16E5A /* SmoothLinesLayer.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -2286,6 +2286,11 @@
 			isa = PBXProject;
 			attributes = {
 				LastUpgradeCheck = 0460;
+				TargetAttributes = {
+					1A5602D817E91C1600800EBA = {
+						DevelopmentTeam = KXFK3WRZJZ;
+					};
+				};
 			};
 			buildConfigurationList = 1A5602D417E91C1600800EBA /* Build configuration list for PBXProject "ToolsDemo" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2685,6 +2690,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -2710,6 +2717,7 @@
 					"-lsqlite3",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = "\"ToolsDemo/libs\"";
 				WRAPPER_EXTENSION = app;
 			};
@@ -2719,6 +2727,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COPY_PHASE_STRIP = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = ToolsDemo/Prefix.pch;
@@ -2742,6 +2752,7 @@
 					"-lsqlite3",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				USER_HEADER_SEARCH_PATHS = "\"ToolsDemo/libs\"";
 				VALIDATE_PRODUCT = YES;
 				WRAPPER_EXTENSION = app;
