@@ -302,7 +302,7 @@
 		1A5606D617E91CEF00800EBA /* MainScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606C717E91CEF00800EBA /* MainScene.cpp */; };
 		1A5606D717E91CEF00800EBA /* Notifier.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606C917E91CEF00800EBA /* Notifier.cpp */; };
 		1A5606D817E91CEF00800EBA /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606CC17E91CEF00800EBA /* Stopwatch.cpp */; };
-		1A5606D917E91CEF00800EBA /* TapDragPinchInputLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606CE17E91CEF00800EBA /* TapDragPinchInputLayer.cpp */; };
+		1A5606D917E91CEF00800EBA /* TapDragPinchInput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606CE17E91CEF00800EBA /* TapDragPinchInput.cpp */; };
 		1A5606E017E91DB000800EBA /* MathUtilities.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606DE17E91DB000800EBA /* MathUtilities.cpp */; };
 		1A5606E317E9334D00800EBA /* LineSmoother.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5606E117E9334C00800EBA /* LineSmoother.cpp */; };
 		1A5C914D17F1A0FE00A16E5A /* SmoothLinesLayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1A5C914B17F1A0FE00A16E5A /* SmoothLinesLayer.cpp */; };
@@ -947,8 +947,8 @@
 		1A5606CB17E91CEF00800EBA /* SingletonTemplate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingletonTemplate.h; sourceTree = "<group>"; };
 		1A5606CC17E91CEF00800EBA /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
 		1A5606CD17E91CEF00800EBA /* Stopwatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stopwatch.h; sourceTree = "<group>"; };
-		1A5606CE17E91CEF00800EBA /* TapDragPinchInputLayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TapDragPinchInputLayer.cpp; sourceTree = "<group>"; };
-		1A5606CF17E91CEF00800EBA /* TapDragPinchInputLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapDragPinchInputLayer.h; sourceTree = "<group>"; };
+		1A5606CE17E91CEF00800EBA /* TapDragPinchInput.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TapDragPinchInput.cpp; sourceTree = "<group>"; };
+		1A5606CF17E91CEF00800EBA /* TapDragPinchInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TapDragPinchInput.h; sourceTree = "<group>"; };
 		1A5606DE17E91DB000800EBA /* MathUtilities.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MathUtilities.cpp; sourceTree = "<group>"; };
 		1A5606DF17E91DB000800EBA /* MathUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MathUtilities.h; sourceTree = "<group>"; };
 		1A5606E117E9334C00800EBA /* LineSmoother.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LineSmoother.cpp; sourceTree = "<group>"; };
@@ -2253,8 +2253,8 @@
 				1A5C914C17F1A0FE00A16E5A /* SmoothLinesLayer.h */,
 				1A5606CC17E91CEF00800EBA /* Stopwatch.cpp */,
 				1A5606CD17E91CEF00800EBA /* Stopwatch.h */,
-				1A5606CE17E91CEF00800EBA /* TapDragPinchInputLayer.cpp */,
-				1A5606CF17E91CEF00800EBA /* TapDragPinchInputLayer.h */,
+				1A5606CE17E91CEF00800EBA /* TapDragPinchInput.cpp */,
+				1A5606CF17E91CEF00800EBA /* TapDragPinchInput.h */,
 			);
 			name = Classes;
 			sourceTree = "<group>";
@@ -2611,7 +2611,7 @@
 				1A5606D617E91CEF00800EBA /* MainScene.cpp in Sources */,
 				1A5606D717E91CEF00800EBA /* Notifier.cpp in Sources */,
 				1A5606D817E91CEF00800EBA /* Stopwatch.cpp in Sources */,
-				1A5606D917E91CEF00800EBA /* TapDragPinchInputLayer.cpp in Sources */,
+				1A5606D917E91CEF00800EBA /* TapDragPinchInput.cpp in Sources */,
 				1A5606E017E91DB000800EBA /* MathUtilities.cpp in Sources */,
 				1A5606E317E9334D00800EBA /* LineSmoother.cpp in Sources */,
 			);

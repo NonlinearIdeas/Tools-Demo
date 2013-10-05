@@ -30,7 +30,7 @@
 #include "DebugLinesLayer.h"
 #include "DebugMenuLayer.h"
 #include "SmoothLinesLayer.h"
-#include "TapDragPinchInputLayer.h"
+#include "TapDragPinchInput.h"
 
 MainScene::MainScene()
 {
@@ -71,9 +71,9 @@ bool MainScene::init()
    CreateMenu();
    
    // Touch Input Layer
-   layer = TapDragPinchInputLayer::create(this);
-   assert(layer != NULL);
-   addChild(layer);
+   CCNode* node = TapDragPinchInput::create(this);
+   assert(node != NULL);
+   addChild(node);
    
    return true;
 }

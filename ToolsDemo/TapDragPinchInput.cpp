@@ -1,5 +1,5 @@
 /********************************************************************
- * File   : TapDragPinchInputLayer.cpp
+ * File   : TapDragPinchInput.cpp
  * Project: ToolsDemo
  *
  ********************************************************************
@@ -24,31 +24,22 @@
  *    distribution.
  */
 
-#include "TapDragPinchInputLayer.h"
+#include "TapDragPinchInput.h"
 #include "DebugLinesLayer.h"
 
 const static float32 DRAG_RADIUS = 2.0f;
 const static float32 DRAG_RADIUS_SQ = (DRAG_RADIUS*DRAG_RADIUS);
 
 
-static CCPoint PointFromTouch(CCTouch* touch)
+void TapDragPinchInput::StoreTouchData(CCTouch* touch, TOUCH_DATA_T* touchData)
 {
-   CCPoint posRaw = touch->getLocationInView();
-   CCPoint pos = CCDirector::sharedDirector()->convertToGL(posRaw);
-   return pos;
-}
-
-
-void TapDragPinchInputLayer::StoreTouchData(CCTouch* touch, TOUCH_DATA_T* touchData)
-{
-   CCPoint posRaw = touch->getLocationInView();
-   touchData->pos = CCDirector::sharedDirector()->convertToGL(posRaw);
+   touchData->pos = touch->getLocation(); // openGL coordinates
    touchData->ID = touch->getID();
    touchData->timestamp = _stopWatch.GetSeconds();
 }
 
 
-bool TapDragPinchInputLayer::init(TapDragPinchInputLayerTarget* target)
+bool TapDragPinchInput::init(TapDragPinchInputTarget* target)
 {
    assert(target != NULL);
    _enabled = true;
@@ -57,17 +48,17 @@ bool TapDragPinchInputLayer::init(TapDragPinchInputLayerTarget* target)
    return true;
 }
 
-TapDragPinchInputLayer::TapDragPinchInputLayer()
+TapDragPinchInput::TapDragPinchInput()
 {
 }
 
-TapDragPinchInputLayer::~TapDragPinchInputLayer()
+TapDragPinchInput::~TapDragPinchInput()
 {
    
 }
 
 
-void TapDragPinchInputLayer::DrawDebug()
+void TapDragPinchInput::DrawDebug()
 {
    LINE_PIXELS_DATA ld;
    
@@ -101,21 +92,21 @@ void TapDragPinchInputLayer::DrawDebug()
 
 // The class registers/unregisters on entry
 // or exit of the layer.  This
-void TapDragPinchInputLayer::onEnterTransitionDidFinish()
+void TapDragPinchInput::onEnterTransitionDidFinish()
 {
-   CCLayer::onEnterTransitionDidFinish();
+   CCNode::onEnterTransitionDidFinish();
    init(_target);
    CCDirector::sharedDirector()->getTouchDispatcher()->addTargetedDelegate((CCTargetedTouchDelegate*)this, 0, true);
 }
 
-void TapDragPinchInputLayer::onExitTransitionDidStart()
+void TapDragPinchInput::onExitTransitionDidStart()
 {
-   CCLayer::onExitTransitionDidStart();
+   CCNode::onExitTransitionDidStart();
    CCDirector::sharedDirector()->getTouchDispatcher()->removeDelegate((CCTargetedTouchDelegate*)this);
 }
 
 
-bool TapDragPinchInputLayer::ccTouchBegan(CCTouch *touch, CCEvent *pEvent)
+bool TapDragPinchInput::ccTouchBegan(CCTouch *touch, CCEvent *pEvent)
 {
    switch(_state)
    {
@@ -144,7 +135,7 @@ bool TapDragPinchInputLayer::ccTouchBegan(CCTouch *touch, CCEvent *pEvent)
    return true;
 }
 
-void TapDragPinchInputLayer::ccTouchMoved(CCTouch *touch, CCEvent *pEvent)
+void TapDragPinchInput::ccTouchMoved(CCTouch *touch, CCEvent *pEvent)
 {
    switch(_state)
    {
@@ -158,7 +149,7 @@ void TapDragPinchInputLayer::ccTouchMoved(CCTouch *touch, CCEvent *pEvent)
       case DPT_FINGER_DOWN:
          if(touch->getID()== _points[0].ID)
          {
-            float distSq = ccpDistanceSQ(_points[0].pos, PointFromTouch(touch));
+            float distSq = ccpDistanceSQ(_points[0].pos, touch->getLocation());
             if(distSq >= DRAG_RADIUS_SQ)
             {  // Starting a drag.
                StoreTouchData(touch, &_points[1]);
@@ -190,7 +181,7 @@ void TapDragPinchInputLayer::ccTouchMoved(CCTouch *touch, CCEvent *pEvent)
    
 }
 
-void TapDragPinchInputLayer::ccTouchEnded(CCTouch *touch, CCEvent *pEvent)
+void TapDragPinchInput::ccTouchEnded(CCTouch *touch, CCEvent *pEvent)
 {
    switch(_state)
    {
@@ -232,15 +223,15 @@ void TapDragPinchInputLayer::ccTouchEnded(CCTouch *touch, CCEvent *pEvent)
    }
 }
 
-void TapDragPinchInputLayer::ccTouchCancelled(CCTouch *touch, CCEvent *pEvent)
+void TapDragPinchInput::ccTouchCancelled(CCTouch *touch, CCEvent *pEvent)
 {
    ccTouchEnded(touch, pEvent);
 }
 
 
-TapDragPinchInputLayer* TapDragPinchInputLayer::create(TapDragPinchInputLayerTarget* target)
+TapDragPinchInput* TapDragPinchInput::create(TapDragPinchInputTarget* target)
 {
-   TapDragPinchInputLayer *pRet = new TapDragPinchInputLayer();
+   TapDragPinchInput *pRet = new TapDragPinchInput();
    if (pRet && pRet->init(target))
    {
       pRet->autorelease();

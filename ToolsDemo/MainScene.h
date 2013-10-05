@@ -31,13 +31,13 @@
 #include "CommonSTL.h"
 
 #include "DebugLinesLayer.h"
-#include "TapDragPinchInputLayer.h"
+#include "TapDragPinchInput.h"
 #include "Notifier.h"
 #include "SmoothLinesLayer.h"
 
 class LineSmoother;
 
-class MainScene : public CCScene, public Notified, public TapDragPinchInputLayerTarget
+class MainScene : public CCScene, public Notified, public TapDragPinchInputTarget
 {
 private:
    // This class follows the "create"/"autorelease" pattern.
@@ -78,7 +78,7 @@ public:
    virtual void Notify(Notifier::NOTIFIED_EVENT_TYPE_T eventType, const void* eventData);
    
    // Handler for Tap/Drag/Pinch Events
-   typedef TapDragPinchInputLayerTarget::TOUCH_DATA_T TOUCH_DATA_T;
+   typedef TapDragPinchInputTarget::TOUCH_DATA_T TOUCH_DATA_T;
    virtual void TapDragPinchInputTap(const TOUCH_DATA_T& point);
    virtual void TapDragPinchInputLongTap(const TOUCH_DATA_T& point);
    virtual void TapDragPinchInputPinchBegin(const TOUCH_DATA_T& point0, const TOUCH_DATA_T& point1);

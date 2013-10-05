@@ -1,5 +1,5 @@
 /********************************************************************
- * File   : TapDragPinchInputLayer.h
+ * File   : TapDragPinchInput.h
  * Project: ToolsDemo
  *
  ********************************************************************
@@ -24,24 +24,24 @@
  *    distribution.
  */
 
-#ifndef __Box2DTestBed__TapDragPinchInputLayer__
-#define __Box2DTestBed__TapDragPinchInputLayer__
+#ifndef __Box2DTestBed__TapDragPinchInput__
+#define __Box2DTestBed__TapDragPinchInput__
 
 #include "CommonSTL.h"
 #include "CommonProject.h"
 #include "Stopwatch.h"
 
-class TapDragPinchInputLayer;
+class TapDragPinchInput;
 
 /* This class is an interface for 
- * a delegate for the TapDragPinchInputLayer.
+ * a delegate for the TapDragPinchInput.
  * Any class (usually a scene) that wishes to 
  * receive the input from the layer derives
  * from this class and implements the virtual
  * methods in it.
  */
 
-class TapDragPinchInputLayerTarget
+class TapDragPinchInputTarget
 {
 public:
    typedef struct
@@ -61,7 +61,7 @@ private:
    inline void SetPinchPoint0(const TOUCH_DATA_T& point0) { _pinchPoint0 = point0; }
    inline void SetPinchPoint1(const TOUCH_DATA_T& point1) { _pinchPoint1 = point1; }
    
-   friend class TapDragPinchInputLayer;
+   friend class TapDragPinchInput;
 
 protected:
    /* These points are stored automatically at the start of a pinch. 
@@ -96,11 +96,11 @@ public:
  It also receives notifications to enable/disable input.
  
  */
-class TapDragPinchInputLayer : public CCLayer, public CCTargetedTouchDelegate
+class TapDragPinchInput : public CCNode, public CCTargetedTouchDelegate
 {
    
 private:
-   typedef TapDragPinchInputLayerTarget::TOUCH_DATA_T TOUCH_DATA_T;
+   typedef TapDragPinchInputTarget::TOUCH_DATA_T TOUCH_DATA_T;
    //  The states it can be in.
    typedef enum
    {
@@ -116,30 +116,30 @@ private:
    StopWatch _stopWatch;
    bool _enabled;
    
-   bool init(TapDragPinchInputLayerTarget* target);
-   TapDragPinchInputLayer();
+   bool init(TapDragPinchInputTarget* target);
+   TapDragPinchInput();
    void StoreTouchData(CCTouch* touch, TOUCH_DATA_T* touchData);
-   TapDragPinchInputLayerTarget* _target;
+   TapDragPinchInputTarget* _target;
    
 public:
-   
+   // For debugging.
    void DrawDebug();
 
-   
-   virtual ~TapDragPinchInputLayer();
+   virtual ~TapDragPinchInput();
    
    // The class registers/unregisters on entry
-   // or exit of the layer.  This 
+   // or exit of the layer.
    virtual void onEnterTransitionDidFinish();
    virtual void onExitTransitionDidStart();
-   
+   // CCTargetedTouchDelegate virtual methods.
    virtual bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent);
    virtual void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent);
    virtual void ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent);
    virtual void ccTouchCancelled(CCTouch *pTouch, CCEvent *pEvent);
    
-   
-   static TapDragPinchInputLayer* create(TapDragPinchInputLayerTarget* target);
+   // This class will autorelease automatically if added to a layer,
+   // scene, etc.
+   static TapDragPinchInput* create(TapDragPinchInputTarget* target);
 };
 
-#endif /* defined(__Box2DTestBed__TapDragPinchInputLayer__) */
+#endif /* defined(__Box2DTestBed__TapDragPinchInput__) */
