@@ -178,7 +178,11 @@ void Notifier::Notify(NOTIFIED_EVENT_TYPE_T eventType, const void* eventData)
       throw std::out_of_range("eventType out of range");
    }
    
-   NOTIFIED_VECTOR_T& notified = _notifiedVector[eventType];
+   // Keep a copy of the list.  If it changes while iterating over it because of a
+   // deletion, we may miss an object to update.  Instead, we keep track of Detach(...)
+   // calls during the Notify(...) cycle and ignore anything detached because it may
+   // have been deleted.
+   NOTIFIED_VECTOR_T notified = _notifiedVector[eventType];
 
    // If a call to Notify leads to a call to Notify, we need to keep track of
    // the depth so that we can clear the detached list when we get to the end

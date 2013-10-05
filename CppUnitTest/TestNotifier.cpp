@@ -461,6 +461,7 @@ void TestNotifier::TestDetach()
 // it does not get a call to Notify(...).
 void TestNotifier::TestDeleteViaNotify()
 {
+   Notifier& notifier = Notifier::Instance();
    vector<Notifier::NOTIFIED_EVENT_TYPE_T> events;
    vector<Notified*> notified;
    
@@ -471,33 +472,33 @@ void TestNotifier::TestDeleteViaNotify()
 
    // Now call a Notify on pNotifyTarget1 by using the
    // Notifier::NE_DEBUG_BUTTON_PRESSED event.
-   CPPUNIT_ASSERT_NO_THROW(Notifier::Instance().Notify(Notifier::NE_DEBUG_BUTTON_PRESSED,(void*)DeleteNotifyTarget2));
+   CPPUNIT_ASSERT_NO_THROW(notifier.Notify(Notifier::NE_DEBUG_BUTTON_PRESSED,(void*)DeleteNotifyTarget3));
 
-   // Verify that pNotifyTarget2 is NULL.
-   CPPUNIT_ASSERT(pNotifyTarget2 == NULL);
+   // Verify that pNotifyTarget3 is NULL.
+   CPPUNIT_ASSERT(pNotifyTarget3 == NULL);
    
    // Verify that the Notifier doesn't know about it.
    // Verify the correct messages are there for each object.
-   events = Notifier::Instance().GetEvents(pNotifyTarget1);
+   events = notifier.GetEvents(pNotifyTarget1);
    CPPUNIT_ASSERT(events.size() == 2);
-   events = Notifier::Instance().GetEvents(pNotifyTargetOrg);
+   events = notifier.GetEvents(pNotifyTargetOrg);
+   CPPUNIT_ASSERT(events.size() == 2);
+   events = notifier.GetEvents(pNotifyTarget3);
    CPPUNIT_ASSERT(events.size() == 0);
-   events = Notifier::Instance().GetEvents(pNotifyTarget3);
-   CPPUNIT_ASSERT(events.size() == 2);
    
    for(Notifier::NOTIFIED_EVENT_TYPE_T event = Notifier::NE_MIN; event < Notifier::NE_MAX; event++)
    {
-      notified = Notifier::Instance().GetNotified(event);
+      notified = notifier.GetNotified(event);
       switch(event)
       {
          case Notifier::NE_DEBUG_BUTTON_PRESSED:
-            CPPUNIT_ASSERT(notified.size() == 2);
+            CPPUNIT_ASSERT(notified.size() == 1);
             break;
          case Notifier::NE_DEBUG_LINE_DRAW_ADD_LINE_PIXELS:
             CPPUNIT_ASSERT(notified.size() == 1);
             break;
          case Notifier::NE_DEBUG_LINES_TOGGLE_VISIBILITY:
-            CPPUNIT_ASSERT(notified.size() == 0);
+            CPPUNIT_ASSERT(notified.size() == 1);
             break;
          case Notifier::NE_RESET_DRAW_CYCLE:
             CPPUNIT_ASSERT(notified.size() == 1);
